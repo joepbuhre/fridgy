@@ -6,10 +6,12 @@ const router = createRouter({
             path: '/',
             component: () =>
                 import ('../views/HomeView.vue'),
-            meta: {
-                auth: true
-            }
         },
+        {
+            name: 'Item',
+            path: '/item/:EAN',
+            component: () => import('../views/ItemView.vue')
+        }
     ],
     history: createWebHashHistory()
 })

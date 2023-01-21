@@ -6,7 +6,7 @@ const items = Router()
 
 items.get('/', getAllItem)
 
-items.get('/:ean', getItem)
+items.get('/:EAN', getItem)
 
 items.get('/create', createItem)
 

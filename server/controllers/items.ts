@@ -9,7 +9,14 @@ export const getAllItem = (req: Request, res: Response) => {
     });
 };
 
-export const getItem = (req: Request, res: Response) => {};
+export const getItem = (req: Request, res: Response) => {
+    console.log(req.params.EAN)
+    prisma.itemsInventory.findMany({
+        where: { EAN: req.params.EAN },
+    }).then(resp => {
+        res.send(resp)
+    })
+};
 
 export const createItem = (req: Request, res: Response) => {
     async function main() {
