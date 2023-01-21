@@ -1,7 +1,14 @@
 <template>
     <div>
         <h1 class="font-bold text-2xl">Fridgy</h1>
-        <router-link v-for="item in data" :to="{name: 'Item', params: {EAN: item.EAN}}">
+        <input v-model="search" type="search" />
+        <pre>
+            {{ visibleItems }}
+        </pre>
+        <router-link
+            v-for="item in data"
+            :to="{ name: 'Item', params: { EAN: item.EAN } }"
+        >
             <div
                 class="flex relative my-6 justify-around border border-slate-400 p-1 rounded-sm"
             >
@@ -29,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { api } from "../utils/api";
 import { ItemsInventory } from "@prisma/client";
 import type { Product } from "../../../types/FoodProduct";
@@ -39,10 +46,19 @@ import axios from "axios";
 const data = ref<ItemsInventory[] | null>(null);
 const ff = ref<Product | null | undefined>(null);
 const resultZX = ref<any>(null);
+const search = ref<string>("");
 
 api.get("/items").then((res) => {
     data.value = res.data;
     console.log(res);
+});
+
+const visibleItems = computed(() => {
+    return data.value?.filter((item: ItemsInventory) => {
+        console.log(item.EAN.search(search.value));
+
+        return item.EAN.search(search.value) > -1;
+    });
 });
 
 axios

@@ -16,6 +16,7 @@ const app = express();
 const router = Router()
 
 app.use(cors())
+app.use(express.json());
 
 router.use('/items', items)
 
