@@ -1,10 +1,15 @@
 <template>
     <div>
-        <h1 class="font-bold text-2xl">Fridgy</h1>
-        <input v-model="search" type="search" />
-        <pre>
-            {{ visibleItems }}
-        </pre>
+        <div class="md:grid-cols-4 grid-cols-2 grid gap-10">
+            <router-link :to="{name: 'Add Item'}">
+                <div class="border border-solid border-blue-800 p-4">
+                    View current stock
+                </div>
+            </router-link>
+            <div class="border border-solid border-blue-800 p-4">
+                View current stock
+            </div>
+        </div>
         <router-link
             v-for="item in data"
             :to="{ name: 'Item', params: { EAN: item.EAN } }"

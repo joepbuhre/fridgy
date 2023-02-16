@@ -1,120 +1,118 @@
 <template>
-    <form>
-        <div>
-            <label for="EAN" class="block">Ean</label>
-            <input id="EAN" class="px-2 py-1 border-2 border-slate-100 outline-none" type="text" />
-        </div>
-        <button class="px-2 py-1 bg-blue-800 rounded-sm text-white">
-            Verstuur
-        </button>
-    </form>
-    <div class="px-4 py-2">
-        <h1 class="font-bold text-2xl">Fridgy</h1>
-        
-        <div class="flex">
-            <button
-            class="px-2 py-1 bg-blue-800 rounded-sm text-white"
-            @click="scan"
-        >
-            Scan here
-        </button>
-        <button
-            class="px-2 py-1 text-blue-800 rounded-sm bg-white border border-blue-800"
-            @click="restart"
-        >
-            Restart scanner
-        </button>
-        </div>
-        <section class="container" id="demo-content">
-            <div>
-                <video
-                    id="video"
-                    width="600"
-                    height="400"
-                    style="border: 1px solid gray"
-                ></video>
-            </div>
+    <h4>Voeg toe</h4>
 
-            <div id="sourceSelectPanel" style="display: none">
-                <label for="sourceSelect">Change video source:</label>
-                <select id="sourceSelect" style="max-width: 400px"></select>
+    <div>
+        <input
+            type="phone"
+            v-model="item.ean"
+            class="border border-solid border-blue-400 outline-none"
+        />
+    </div>
+    <div>
+        <input
+            type="number"
+            v-model="item.count"
+            class="border border-solid border-green-400 outline-none"
+        />
+    </div>
+    <div>
+        <input
+            type="date"
+            v-model="item.tht"
+            class="border border-solid border-green-400 outline-none"
+        />
+    </div>
+    <div class="grid grid-cols-2 gap-5">
+        <button @click="addItem" class="bg-blue-500 text-white">Add</button>
+        <button @click="finalize" class="bg-blue-500 text-white">
+            Finalize
+        </button>
+    </div>
+    <div
+        v-for="item in items"
+        class="my-6 justify-around border border-slate-400 p-1 rounded-sm"
+        @click="edit(item)"
+    >
+        <div class="mb-2">
+            <h4 class="font-semibold text-center">
+                {{ item.foodfacts?.product_name_nl }}
+            </h4>
+        </div>
+        <div class="flex relative gap-5 justify-center">
+            <div>
+                <span
+                    class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
+                >
+                    {{ item.count }} stuks op voorraad</span
+                >
             </div>
-        </section>
-        <div v-for="item in additions">
             <div
-                class="flex relative my-6 justify-around border border-slate-400 p-1 rounded-sm"
+                class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
             >
-                <div class="w-2/3">
-                    <h4 class="font-semibold">{{ item }}</h4>
-                    <span>Vriezer</span>
-                    <div>
-                        <span
-                            class="bg-green-100 text-green-500 border border-green-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
-                        >
-                            2 op voorraad</span
-                        >
-                    </div>
-                </div>
-                <div class="w-auto">
-                    <div
-                        class="text-red-700 bg-red-100 font-bold px-2 py-1 rounded-md"
-                    >
-                        1 days
-                    </div>
-                </div>
+                <span v-if="item.tht"> THT: {{ item.tht }} </span>
+                <span v-else> THT onbekend </span>
             </div>
+        </div>
+    </div>
+    <div v-if="editModal" class="absolute inset-0 bg-black bg-opacity-25 flex" >
+        <div class="m-auto p-10 w-full mx-10 bg-white">
+            hi
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { BrowserCodeReader, BrowserQRCodeReader } from '@zxing/browser';
-import { BrowserBarcodeReader, Result } from '@zxing/library';
-import { ref } from 'vue';
-import { api } from '../utils/api';
+import { ref, toRaw } from "vue";
+import { api, wff } from "../utils/api";
+import type { AddItemProduct } from "../../../types/AddItem";
+import type { Product } from "../../../types/FoodProduct";
+import { prettydelta } from "../utils/helpers";
 
-const additions = ref<string[]>([])
+const result = ref<any>([]);
+const editModal = ref(false)
 
-const codeReader = ref<BrowserBarcodeReader | undefined>(undefined)
+const item = ref<AddItemProduct>({
+    count: 0,
+    ean: "",
+    tht: null,
+});
 
-const scan = async () => {
-    
-    const videoInputDevices = await BrowserCodeReader.listVideoInputDevices();
-    codeReader.value = new BrowserBarcodeReader();
+const items = ref<AddItemProduct[]>([]);
 
-    // choose your media device (webcam, frontal camera, back camera, etc.)
-    let selectedDeviceId = videoInputDevices[0].deviceId;
-    
-    for (let i = 0; i < videoInputDevices.length; i++) {
-        const el = videoInputDevices[i];
-        if(el.label === 'Back Camera') {
-            selectedDeviceId = el.deviceId
+const addItem = async (): Promise<void> => {
+    let found = false;
+    for (let i = 0; i < items.value.length; i++) {
+        const it = items.value[i];
+        if (it.ean === item.value.ean && it.tht === item.value.tht) {
+            it.count = it.count + item.value.count;
+            found = true;
         }
     }
 
-    console.log(`Started decode from camera with id ${selectedDeviceId}`);
-
-    const previewElem: HTMLVideoElement | null = document.querySelector('video');
-    console.log(previewElem)
-    if(previewElem !== null) {
-        // you can use the controls to stop() the scan or switchTorch() if available
-        codeReader.value.decodeFromVideoDevice(selectedDeviceId, previewElem, (res: Result, error: any) => {
-            if(res) {
-                console.log(res)
-                if(additions.value.indexOf(res.getText()) < 0) {
-                    additions.value.push(res.getText())
-                }
-            }
-        })
+    if (item.value.tht) {
+        console.log(prettydelta(item.value.tht));
     }
-    console.log(videoInputDevices)
 
+    if (found === false) {
+        const foodfact: Product =
+            (await wff.get("/product/87338010.json")).data?.product || null;
 
-}
+        // TODO FIX JSON PARSE
+        items.value.push({
+            ...JSON.parse(JSON.stringify(item.value)),
+            foodfacts: foodfact,
+        });
+    }
+};
 
-const restart = () => {
-    codeReader.value?.reset()
-    scan()
+const finalize = (): void => {
+    console.log(items.value);
+};
+
+const edit = (item:AddItemProduct) => {
+
+    console.log(item)
+
 }
 
 </script>
