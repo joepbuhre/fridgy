@@ -54,9 +54,41 @@
             </div>
         </div>
     </div>
-    <div v-if="editModal" class="absolute inset-0 bg-black bg-opacity-25 flex" >
-        <div class="m-auto p-10 w-full mx-10 bg-white">
-            hi
+    <div
+        v-if="editModal && editItem?.ean && editItem?.count"
+        class="absolute inset-0 bg-black bg-opacity-10 flex"
+        @click.self="editModal = false"
+    >
+        <div class="m-auto p-5 w-full mx-5 bg-white shadow-2xl">
+            <div class="flex gap-4">
+                <InputGroup
+                    v-model="editItem.ean"
+                    class="w-2/3"
+                    name="ean"
+                    prettyname="EAN Code"
+                />
+                <InputGroup
+                    v-model="editItem.count"
+                    class="w-1/3"
+                    name="count"
+                    prettyname="Aantal"
+                    type="number"
+                    :input-attrs="{ readonly: false }"
+                />
+            </div>
+            <div>
+                <InputGroup
+                    v-model="test"
+                    name="tht"
+                    prettyname="Houdbaarheidsdatum"
+                    type="date"
+                    :input-attrs="{ readonly: false }"
+                />
+            </div>
+            <div class="flex gap-5">
+                <TheButton class="w-1/2 bg-green-700">Sla op</TheButton>
+                <TheButton class="w-1/2 bg-red-700">Verwijder</TheButton>
+            </div>
         </div>
     </div>
 </template>
@@ -67,9 +99,13 @@ import { api, wff } from "../utils/api";
 import type { AddItemProduct } from "../../../types/AddItem";
 import type { Product } from "../../../types/FoodProduct";
 import { prettydelta } from "../utils/helpers";
+import InputGroup from "../components/InputGroup.vue";
+import TheButton from "../components/TheButton.vue";
+
+const test = ref<string>("");
 
 const result = ref<any>([]);
-const editModal = ref(false)
+const editModal = ref(false);
 
 const item = ref<AddItemProduct>({
     count: 0,
@@ -109,10 +145,9 @@ const finalize = (): void => {
     console.log(items.value);
 };
 
-const edit = (item:AddItemProduct) => {
-
-    console.log(item)
-
-}
-
+const editItem = ref<AddItemProduct | null>(null);
+const edit = (item: AddItemProduct) => {
+    editItem.value = item;
+    editModal.value = true;
+};
 </script>
