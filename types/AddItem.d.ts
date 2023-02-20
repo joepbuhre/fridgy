@@ -2,7 +2,7 @@ import { Product } from "./FoodProduct";
 
 export interface AddItemProduct {
     ean: string,
-    count: number,
-    tht: Date | null,
+    count: string,
+    tht: string,
     foodfacts?: Product
 }
