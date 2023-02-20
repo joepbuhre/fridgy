@@ -1,18 +1,15 @@
 <template>
     <div class="px-4 py-2">
         <div class="flex">
-            <button
-            class="px-2 py-1 bg-blue-800 rounded-sm text-white"
-            @click="scan"
-        >
-            Scan here
-        </button>
         <button
             class="px-2 py-1 text-blue-800 rounded-sm bg-white border border-blue-800"
             @click="restart"
         >
             Restart scanner
         </button>
+        <TheButton @click="stopScanner">
+            Stop
+        </TheButton>
         </div>
         <section class="container" id="demo-content">
             <div>
@@ -35,12 +32,16 @@
 <script setup lang="ts">
 import { BrowserCodeReader, BrowserQRCodeReader } from '@zxing/browser';
 import { BrowserBarcodeReader, Result } from '@zxing/library';
-import { ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { api } from '../utils/api';
 
 const additions = ref<string[]>([])
 
 const codeReader = ref<BrowserBarcodeReader | undefined>(undefined)
+
+onMounted(() => {
+    scan()
+})
 
 const scan = async () => {
     
@@ -65,21 +66,29 @@ const scan = async () => {
         // you can use the controls to stop() the scan or switchTorch() if available
         codeReader.value.decodeFromVideoDevice(selectedDeviceId, previewElem, (res: Result, error: any) => {
             if(res) {
-                console.log(res)
+                emits('found', res.getText())
                 if(additions.value.indexOf(res.getText()) < 0) {
                     additions.value.push(res.getText())
                 }
             }
         })
     }
-    console.log(videoInputDevices)
-
-
 }
+
+const emits = defineEmits<{
+    (e: "found", value: string): void;
+}>()
+
 
 const restart = () => {
     codeReader.value?.reset()
     scan()
 }
 
+const stopScanner = () => {
+    console.log('stopping')
+    codeReader.value?.reset()
+}
+
+onUnmounted(stopScanner)
 </script>
