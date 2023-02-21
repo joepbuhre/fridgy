@@ -49,7 +49,7 @@ const scan = async () => {
     codeReader.value = new BrowserBarcodeReader();
 
     // choose your media device (webcam, frontal camera, back camera, etc.)
-    let selectedDeviceId = videoInputDevices[0].deviceId;
+    let selectedDeviceId: string = videoInputDevices[0].deviceId;
     
     for (let i = 0; i < videoInputDevices.length; i++) {
         const el = videoInputDevices[i];
