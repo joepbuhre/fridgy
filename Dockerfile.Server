@@ -16,8 +16,8 @@ FROM node:lts-slim as target
 
 WORKDIR /app
 
-COPY --from=builder /builder/dist /app
-COPY --from=builder /builder/package* /app
+COPY --from=builder /builder/dist /app/
+COPY --from=builder /builder/package* /app/
 COPY ./server/prisma ./server/prisma
 
 RUN npm ci --omit dev
