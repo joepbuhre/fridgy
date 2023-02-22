@@ -10,11 +10,19 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model Locations {
+    ID            Int              @id @default(autoincrement())
+    Name          String           @unique
+    LocationItems ItemsInventory[]
+}
+
 model ItemsInventory {
-    ID      Int             @id @default(autoincrement())
-    EAN     String
-    Stock   Int
-    Expiry  DateTime
+    ID         Int       @id @default(autoincrement())
+    EAN        String
+    Stock      Int
+    Expiry     DateTime
+    Location   Locations @relation(fields: [LocationID], references: [ID])
+    LocationID Int
 }
 
 // model ItemsDetails {

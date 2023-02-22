@@ -1,14 +1,9 @@
 <template>
     <div>
-        <div class="md:grid-cols-4 grid-cols-2 grid gap-10">
+        <div class="md:grid-cols-4 grid-cols-2 grid gap-10 py-4">
             <router-link :to="{name: 'Add Item'}">
-                <div class="border border-solid border-blue-800 p-4">
-                    View current stock
-                </div>
+                <TheButton>Add item</TheButton>
             </router-link>
-            <div class="border border-solid border-blue-800 p-4">
-                View current stock
-            </div>
         </div>
         <router-link
             v-for="item in data"
@@ -22,11 +17,16 @@
                 <div class="w-2/3">
                     <h4 class="font-semibold">{{ getProductName(meta?.[item.EAN]) }}</h4>
                     <span>Vriezer</span>
-                    <div>
+                    <div class="flex gap-4">
                         <span
                             class="bg-green-100 text-green-500 border border-green-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
                         >
                             {{ item.Stock }} op voorraad</span
+                        >
+                        <span
+                            class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
+                        >
+                            {{ (item.Location as Locations).Name }} </span
                         >
                     </div>
                 </div>
@@ -50,6 +50,7 @@ import type { Product } from "../../../types/FoodProduct";
 import type { ProductResponse } from "../../../types/FoodResponse";
 import axios from "axios";
 import { getProductName, prettydelta } from "../utils/helpers";
+import TheButton from "../components/TheButton.vue";
 
 const data = ref<ItemsInventory[] | null>(null);
 const ff = ref<Product | null | undefined>(null);
@@ -95,8 +96,10 @@ const getMetaData = () => {
 
 
 const deleteItem = (it: ItemsInventory) => {
-    api.delete(`/items/${it.ID}`)
-    getItems()
+    if(confirm('Are you sure to delete this item?')) {
+        api.delete(`/items/${it.ID}`)
+        getItems()
+    }
 }
 
 </script>

@@ -1,7 +1,9 @@
 <template>
     <div class="absolute inset-0 bg-black bg-opacity-10 flex">
         <div class="m-auto p-5 w-full mx-5 bg-white shadow-2xl">
-            Ben je er zeker van?
+            <slot>
+                Ben je er zeker van?
+            </slot>
             <div class="flex gap-5">
                 <TheButton @click="emits('confirm', true)">
                     OK

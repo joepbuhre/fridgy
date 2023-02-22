@@ -27,3 +27,7 @@ export const getProductName = (product: Product | undefined): string => {
     else if(product.product_name) {return product.product_name}
     else {return 'onbekend'}
 }
+
+export const raw = (variable: any) => {
+    return JSON.parse(JSON.stringify(variable))
+}

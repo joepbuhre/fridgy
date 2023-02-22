@@ -6,7 +6,13 @@ import { logger } from "../utils/logger";
 const prisma = new PrismaClient();
 
 export const getAllItem = (req: Request, res: Response) => {
-    prisma.itemsInventory.findMany().then((db) => {
+    prisma.itemsInventory.findMany({
+        include: { Location: {
+            select: {
+                Name: true
+            }
+        } }
+    }).then((db) => {
         res.send(db);
     });
 };
@@ -16,6 +22,7 @@ export const getItem = (req: Request, res: Response) => {
     prisma.itemsInventory
         .findMany({
             where: { EAN: req.params.EAN },
+            include: { Location: true }
         })
         .then((resp) => {
             res.send(resp);
@@ -23,18 +30,20 @@ export const getItem = (req: Request, res: Response) => {
 };
 
 export const deleteItem = (req: Request, res: Response) => {
-    prisma.itemsInventory.delete({
-        where: {
-            ID: parseInt(req.params.ID)
-        }
-    })
-    .then(resp => {
-        logger.debug(`sucesfully delete record with id: ${req.params.ID}`)
-    })
-    .catch(err => {
-        logger.error(`Deleting not succesfull`)
-    })
-}
+    prisma.itemsInventory
+        .delete({
+            where: {
+                ID: parseInt(req.params.ID),
+            },
+        })
+        .then((resp) => {
+            res.send(resp)
+            logger.debug(`sucesfully delete record with id: ${req.params.ID}`);
+        })
+        .catch((err) => {
+            logger.error(`Deleting not succesfull`);
+        });
+};
 
 export const createItem = (req: Request, res: Response) => {
     let body: AddItemProduct[];
@@ -46,18 +55,23 @@ export const createItem = (req: Request, res: Response) => {
     }
 
     Promise.all(
-        body.map((ii) => prisma.itemsInventory.create({ data: {
-            EAN: ii.ean,
-            Expiry: new Date(ii.tht),
-            Stock: parseInt(ii.count)   
-        }}))
+        body.map((ii) =>
+            prisma.itemsInventory.create({
+                data: {
+                    EAN: ii.ean,
+                    Expiry: new Date(ii.tht),
+                    Stock: parseInt(ii.count),
+                    LocationID: ii.location
+                },
+            })
+        )
     )
-    .then(resp => {
-        res.status(201)
-        logger.debug(`${body.length} item(s) succesfully created`)
-    })
-    .catch(err => {
-        res.status(500).send(err)
-        logger.error(err, 'error has happened')
-    })
+        .then((resp) => {
+            res.status(201).send(resp);
+            logger.debug(`${body.length} item(s) succesfully created`);
+        })
+        .catch((err) => {
+            res.status(500).send(err);
+            logger.error(err, "error has happened");
+        });
 };
