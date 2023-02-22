@@ -26,7 +26,8 @@
                         <span
                             class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
                         >
-                            {{ (item.Location as Locations).Name }} </span
+                            {{ item.Location.Name }} 
+                            </span
                         >
                     </div>
                 </div>
@@ -46,13 +47,18 @@
 import { computed, onMounted, ref } from "vue";
 import { api, wff } from "../utils/api";
 import { ItemsInventory } from "@prisma/client";
+import type { Locations } from "@prisma/client";
 import type { Product } from "../../../types/FoodProduct";
 import type { ProductResponse } from "../../../types/FoodResponse";
 import axios from "axios";
 import { getProductName, prettydelta } from "../utils/helpers";
 import TheButton from "../components/TheButton.vue";
 
-const data = ref<ItemsInventory[] | null>(null);
+interface ItemsInventoryDeep extends ItemsInventory  {
+    Location: Locations
+}
+
+const data = ref<ItemsInventoryDeep[] | null>(null);
 const ff = ref<Product | null | undefined>(null);
 const resultZX = ref<any>(null);
 const search = ref<string>("");
