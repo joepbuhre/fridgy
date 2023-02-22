@@ -5,8 +5,9 @@
                 <TheButton>Add item</TheButton>
             </router-link>
         </div>
+        <InputGroup class="my-0" v-model="search" name="Search" prettyname="search" />
         <router-link
-            v-for="item in data"
+            v-for="item in visibleItems"
             to="/"
             @click="deleteItem(item)"
             >
@@ -53,15 +54,25 @@ import type { ProductResponse } from "../../../types/FoodResponse";
 import axios from "axios";
 import { getProductName, prettydelta } from "../utils/helpers";
 import TheButton from "../components/TheButton.vue";
+import InputGroup from "../components/InputGroup.vue";
 
 interface ItemsInventoryDeep extends ItemsInventory  {
     Location: Locations
 }
 
+// Implement search
+const search = ref<string>("");
+const visibleItems = computed(() => {
+    return data.value?.filter((item: ItemsInventory) => {
+        console.log(getProductName(meta.value?.[item.EAN])?.search(search.value))
+        return item.EAN.search(search.value) > -1 || getProductName(meta.value?.[item.EAN])?.toLowerCase().search(search.value.toLowerCase()) > -1;
+    });
+});
+
+
 const data = ref<ItemsInventoryDeep[] | null>(null);
 const ff = ref<Product | null | undefined>(null);
 const resultZX = ref<any>(null);
-const search = ref<string>("");
 
 const getItems = () => {
     api.get("/items").then((res) => {
@@ -73,13 +84,6 @@ const getItems = () => {
 
 onMounted(getItems)
 
-const visibleItems = computed(() => {
-    return data.value?.filter((item: ItemsInventory) => {
-        console.log(item.EAN.search(search.value));
-
-        return item.EAN.search(search.value) > -1;
-    });
-});
 
 const meta = ref<{
     [key: string]: Product
