@@ -1,11 +1,11 @@
 <template>
-    <h4 class="font-semibold text-2xl mt-2">{{ productInfo?.product_name_nl }}</h4>
+    <h4 class="font-semibold text-2xl mt-2">{{ getProductName(productInfo) }}</h4>
     <div
         v-if="inventory"
         class=""
     >
         <InputGroup 
-            v-model="inventory.LocationID"
+            v-model.number="inventory.LocationID"
             :options="locationOptions"
             name="Locations"
             prettyname="Locations"
@@ -17,7 +17,7 @@
             type="date"
         />
         <InputGroup
-            v-model="inventory.Stock"
+            v-model.number="inventory.Stock"
             name="Stock"
             prettyname="Stock"
             type="number"
@@ -41,6 +41,7 @@ import InputGroup from "../components/InputGroup.vue";
 import TheButton from "../components/TheButton.vue";
 import { api } from "../utils/api";
 import { Trash } from "lucide-vue-next";
+import { getProductName } from "../utils/helpers";
 
 const productInfo = ref<Product | undefined>(undefined);
 const inventory = ref<ItemsInventoryDeep | undefined>(undefined);
@@ -53,25 +54,27 @@ const locationOptions = computed(() => locations.value?.map(el => ({value: el.ID
 const route = useRoute();
 const router = useRouter()
 
-const getItem = () => {
-    api.get(`/items/${route.params.EAN}`).then((res) => {
+const getItem = async () => {
+    await api.get(`/items/${route.params.EAN}`).then((res) => {
         inventory.value = res.data;
     });
 }
 
-onMounted(() => {
+onMounted(async () => {
     
-    getItem()
-    api.get('/locations').then(res => {
+    await api.get('/locations').then(res => {
         locations.value = res.data
     })
+    await getItem()
 
-    axios
-        .get("https://world.openfoodfacts.org/api/v2/product/87338010.json")
-        .then((res) => {
-            const result: ProductResponse = res.data;
-            productInfo.value = result.product;
-        });
+    if(inventory.value?.EAN) {
+        axios
+            .get(`https://world.openfoodfacts.org/api/v2/product/${inventory.value?.EAN}.json`)
+            .then((res) => {
+                const result: ProductResponse = res.data;
+                productInfo.value = result.product;
+            });
+    }
 });
 
 
