@@ -1,55 +1,95 @@
 <template>
-    <div v-for="item in inventory">
-            <div
-                class="flex relative my-6 justify-around border border-slate-400 p-1 rounded-sm"
-            >
-                <div class="w-2/3">
-                    <h4 class="font-semibold">{{ productInfo?.product_name_nl }}</h4>
-                    <span>Vriezer</span>
-                    <div>
-                        <span
-                            class="bg-green-100 text-green-500 border border-green-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
-                        >
-                            2 op voorraad</span
-                        >
-                    </div>
-                </div>
-                <div class="w-auto">
-                    <div
-                        class="text-red-700 bg-red-100 font-bold px-2 py-1 rounded-md"
-                    >
-                        1 days
-                    </div>
-                </div>
-            </div>
+    <h4 class="font-semibold text-2xl mt-2">{{ productInfo?.product_name_nl }}</h4>
+    <div
+        v-if="inventory"
+        class=""
+    >
+        <InputGroup 
+            v-model="inventory.LocationID"
+            :options="locationOptions"
+            name="Locations"
+            prettyname="Locations"
+        />
+        <InputGroup 
+            v-model="inventory.Expiry"
+            name="Date"
+            prettyname="Expiry Date"
+            type="date"
+        />
+        <InputGroup
+            v-model="inventory.Stock"
+            name="Stock"
+            prettyname="Stock"
+            type="number"
+        />
+        <div class="grid grid-cols-2 gap-8 my-4" >
+            <TheButton class="bg-green-700" @click="updateItem((inventory as any))">Sla op</TheButton>
+            <TheButton class="bg-red-700 flex gap-3" @click="deleteItem((inventory?.ID as number))"> <Trash /> Verwijder</TheButton>
         </div>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { ItemsInventory } from ".prisma/client";
+import { ItemsInventory, Locations } from ".prisma/client";
 import axios from "axios";
-import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { ItemsInventoryDeep } from "../../../types/AddItem";
 import type { Product } from "../../../types/FoodProduct";
 import type { ProductResponse } from "../../../types/FoodResponse";
+import InputGroup from "../components/InputGroup.vue";
+import TheButton from "../components/TheButton.vue";
 import { api } from "../utils/api";
+import { Trash } from "lucide-vue-next";
 
 const productInfo = ref<Product | undefined>(undefined);
-const inventory = ref<ItemsInventory | undefined>(undefined)
+const inventory = ref<ItemsInventoryDeep | undefined>(undefined);
 
+// Get locations
+const locations = ref<Locations[] | undefined>(undefined)
+const locationOptions = computed(() => locations.value?.map(el => ({value: el.ID.toString(), name: el.Name}) || []))
+
+// Define route(rs)
 const route = useRoute();
+const router = useRouter()
 
-onMounted(() => {
+const getItem = () => {
     api.get(`/items/${route.params.EAN}`).then((res) => {
         inventory.value = res.data;
     });
-    
-axios
-    .get("https://world.openfoodfacts.org/api/v2/product/87338010.json")
-    .then((res) => {
-        const result: ProductResponse = res.data;
-        productInfo.value = result.product;
-    });
+}
 
+onMounted(() => {
+    
+    getItem()
+    api.get('/locations').then(res => {
+        locations.value = res.data
+    })
+
+    axios
+        .get("https://world.openfoodfacts.org/api/v2/product/87338010.json")
+        .then((res) => {
+            const result: ProductResponse = res.data;
+            productInfo.value = result.product;
+        });
 });
+
+
+// Delete Items
+const deleteItem = (it: number) => {
+    if(confirm('Are you sure to delete this item?')) {
+        api.delete(`/items/${it}`).then(res => {
+            router.push('/')
+        })
+        getItem()
+    }
+}
+
+const updateItem = (it: ItemsInventoryDeep) => {
+    
+    api.put('/items', it).then(res => {
+        console.log(res.data)
+        router.push('/')
+    })
+}
 </script>

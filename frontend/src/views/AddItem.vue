@@ -16,16 +16,13 @@
             prettyname="THT Datum"
             type="date"
         />
-        <div class="w-2/5 my-2">
-            <select
-                v-model="selectedLocation"
-                class="border border-solid border-gray-500 rounded-sm outline-none px-2 py-1 w-full"
-            >
-                <option v-for="loc in locations" :value="loc.ID">
-                    {{ loc.Name }}
-                </option>
-            </select>
-        </div>
+        <InputGroup
+            v-model="selectedLocation" 
+            :options="locations.map(el => ({value: el.ID.toString(), name: el.Name}))"
+            name="Location"
+            prettyname="Location"
+            :compact="true"
+        />
         <InputGroup
             class="w-1/5"
             :compact="true"
@@ -73,7 +70,7 @@
                 class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
                 v-if="item.location"
             >
-                <span v-if="item.location"> {{ locations.filter(l => l.ID === item.location)[0].Name }} </span>
+                <span v-if="item.location"> {{ locations.filter(l => l.ID.toString() === item.location)?.[0]?.Name }} </span>
             </div>
         </div>
     </div>
@@ -112,6 +109,12 @@
                         type="date"
                         :input-attrs="{ readonly: false }"
                     />
+                    <InputGroup
+                        v-model="editItem.location" 
+                        :options="locations.map(el => ({value: el.ID.toString(), name: el.Name}))"
+                        name="Location"
+                        prettyname="Location"
+                    />
                 </div>
                 <div class="flex gap-5">
                     <TheButton
@@ -140,6 +143,7 @@ import TheButton from "../components/TheButton.vue";
 import TheScanner from "../components/TheScanner.vue";
 import ThePopup from "../components/ThePopup.vue";
 import type { Locations } from ".prisma/client";
+import { useRouter } from "vue-router";
 
 const test = ref<string>("");
 
@@ -147,11 +151,14 @@ const result = ref<any>([]);
 const editModal = ref(false);
 const popup = ref(false);
 
+// Define router
+const router = useRouter()
+
 const item = ref<AddItemProduct>({
     count: "0",
     ean: "",
     tht: "",
-    location: 0,
+    location: '1',
 });
 
 const items = ref<AddItemProduct[]>([]);
@@ -199,6 +206,7 @@ const onConfirm = (val: boolean) => {
     if (val) {
         console.log("adding to database");
         api.post("/items/create", items.value);
+        router.push('/')
     }
     popup.value = false;
 };
@@ -223,7 +231,7 @@ const eanFound = (ean: string) => {
 
 // Get / Set locations
 const locations = ref<Locations[]>([]);
-const selectedLocation = ref<number>(1);
+const selectedLocation = ref<string>('1');
 onMounted(() => {
     api.get("/locations").then((res) => {
         locations.value = res.data;

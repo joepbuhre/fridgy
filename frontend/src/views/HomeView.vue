@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="md:grid-cols-4 grid-cols-2 grid gap-10 py-4">
+        <div class="md:grid-cols-4 grid-cols-2 grid gap-10 pt-4">
             <router-link :to="{name: 'Add Item'}">
                 <TheButton>Add item</TheButton>
             </router-link>
@@ -8,10 +8,8 @@
         <InputGroup class="my-0" v-model="search" name="Search" prettyname="search" />
         <router-link
             v-for="item in visibleItems"
-            to="/"
-            @click="deleteItem(item)"
+            :to="{name: 'Item', params: {EAN: item.EAN}}"
             >
-            <!-- :to="{ name: 'Item', params: { EAN: item.EAN } }" -->
             <div
                 class="flex relative my-6 justify-around border border-slate-400 p-1 rounded-sm"
             >
@@ -48,17 +46,13 @@
 import { computed, onMounted, ref } from "vue";
 import { api, wff } from "../utils/api";
 import { ItemsInventory } from "@prisma/client";
-import type { Locations } from "@prisma/client";
 import type { Product } from "../../../types/FoodProduct";
 import type { ProductResponse } from "../../../types/FoodResponse";
+import type { ItemsInventoryDeep } from "../../../types/AddItem";
 import axios from "axios";
 import { getProductName, prettydelta } from "../utils/helpers";
 import TheButton from "../components/TheButton.vue";
 import InputGroup from "../components/InputGroup.vue";
-
-interface ItemsInventoryDeep extends ItemsInventory  {
-    Location: Locations
-}
 
 // Implement search
 const search = ref<string>("");
@@ -105,11 +99,5 @@ const getMetaData = () => {
 }
 
 
-const deleteItem = (it: ItemsInventory) => {
-    if(confirm('Are you sure to delete this item?')) {
-        api.delete(`/items/${it.ID}`)
-        getItems()
-    }
-}
 
 </script>
