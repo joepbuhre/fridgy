@@ -16,12 +16,7 @@
                 </TheButton>
             </div>
             <InputGroup
-                :options="
-                    cameras.map((el) => ({
-                        value: el.deviceId,
-                        name: el.label,
-                    }))
-                "
+                :options="cameraOpts"
                 v-model="selectedDeviceId"
                 name="camera"
                 prettyname="camera"
@@ -51,7 +46,8 @@
 <script setup lang="ts">
 import { BrowserCodeReader, BrowserQRCodeReader } from "@zxing/browser";
 import { BrowserBarcodeReader, Result } from "@zxing/library";
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { useMain } from "../store/main";
 import { api } from "../utils/api";
 import InputGroup from "./InputGroup.vue";
 
@@ -59,26 +55,35 @@ const additions = ref<string[]>([]);
 
 const codeReader = ref<BrowserBarcodeReader | undefined>(undefined);
 
-const cameras = ref<any[]>([])
-const selectedDeviceId = ref<string>('')
+// Camera options
+const cameras = ref<any[]>([]);
+const cameraOpts = computed(() =>
+    cameras.value.map((el) => ({
+        value: el.deviceId,
+        name: el.label,
+    }))
+);
+const selectedDeviceId = ref<string>("");
 
-onMounted(() => {
-    scan();
-});
+// Store
+const main = useMain();
 
-
-
+const prepare = async () => {
+    const videoInputDevices = await BrowserCodeReader.listVideoInputDevices();
+    cameras.value = videoInputDevices;
+    selectedDeviceId.value = videoInputDevices[0].deviceId;
+    if(main.getpreferredCamera === '') {
+        main.setCamera(selectedDeviceId.value)
+    }
+};
 
 const scan = async () => {
-    const videoInputDevices = await BrowserCodeReader.listVideoInputDevices();
     codeReader.value = new BrowserBarcodeReader();
 
     // choose your media device (webcam, frontal camera, back camera, etc.)
-    if(selectedDeviceId.value === '') {
-        selectedDeviceId.value = videoInputDevices[0].deviceId;
+    if (selectedDeviceId.value === "") {
+        selectedDeviceId.value = cameras.value[0].deviceId;
     }
-    cameras.value = videoInputDevices
-
 
     console.log(`Started decode from camera with id ${selectedDeviceId}`);
 
@@ -102,9 +107,18 @@ const scan = async () => {
     }
 };
 
+onMounted(async () => {
+    await prepare();
+    selectedDeviceId.value = main.getpreferredCamera;
+    scan();
+});
+
 watch(selectedDeviceId, (selectedDeviceId, old) => {
-    scan()
-})
+    if(old !== '') {
+        scan();
+        main.setCamera(selectedDeviceId);
+    }
+});
 
 const emits = defineEmits<{
     (e: "found", value: string): void;

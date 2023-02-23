@@ -28,7 +28,6 @@
     "dotenv-cli": "^7.0.0",
     "express": "^4.18.2",
     "moment": "^2.29.4",
-    "pinia": "^2.0.31",
     "pino": "^8.10.0",
     "prisma": "^4.10.1"
   },
@@ -40,6 +39,8 @@
     "autoprefixer": "^10.4.13",
     "lucide-vue-next": "^0.115.0",
     "nodemon": "^2.0.20",
+    "pinia": "^2.0.32",
+    "pinia-plugin-persist": "^1.0.0",
     "pino-pretty": "^9.3.0",
     "postcss": "^8.4.21",
     "sass": "^1.58.3",
