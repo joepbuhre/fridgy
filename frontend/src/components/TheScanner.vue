@@ -1,16 +1,35 @@
 <template>
     <div class="px-4 py-2">
-        <div class="flex">
-        <button
-            class="px-2 py-1 text-blue-800 rounded-sm bg-white border border-blue-800"
-            @click="restart"
-        >
-            Restart scanner
-        </button>
-        <TheButton @click="stopScanner">
-            Stop
-        </TheButton>
+        <div class="flex gap-2 items-center my-2">
+            <!-- <button
+                class="px-2 py-1 text-blue-800 rounded-sm bg-white border border-blue-800"
+                @click="restart"
+            >
+                Restart scanner
+            </button> -->
+            <div>
+                <TheButton
+                    @click="stopScanner"
+                    class="px-2 py-1 w-1/4 text-blue-800 rounded-sm bg-white border border-blue-800"
+                >
+                    Stop
+                </TheButton>
+            </div>
+            <InputGroup
+                :options="
+                    cameras.map((el) => ({
+                        value: el.deviceId,
+                        name: el.label,
+                    }))
+                "
+                v-model="selectedDeviceId"
+                name="camera"
+                prettyname="camera"
+                class="w-3/4 !my-0"
+                :compact="true"
+            />
         </div>
+        <div></div>
         <section class="container" id="demo-content">
             <div>
                 <video
@@ -30,65 +49,76 @@
 </template>
 
 <script setup lang="ts">
-import { BrowserCodeReader, BrowserQRCodeReader } from '@zxing/browser';
-import { BrowserBarcodeReader, Result } from '@zxing/library';
-import { onMounted, onUnmounted, ref } from 'vue';
-import { api } from '../utils/api';
+import { BrowserCodeReader, BrowserQRCodeReader } from "@zxing/browser";
+import { BrowserBarcodeReader, Result } from "@zxing/library";
+import { onMounted, onUnmounted, ref, watch } from "vue";
+import { api } from "../utils/api";
+import InputGroup from "./InputGroup.vue";
 
-const additions = ref<string[]>([])
+const additions = ref<string[]>([]);
 
-const codeReader = ref<BrowserBarcodeReader | undefined>(undefined)
+const codeReader = ref<BrowserBarcodeReader | undefined>(undefined);
+
+const cameras = ref<any[]>([])
+const selectedDeviceId = ref<string>('')
 
 onMounted(() => {
-    scan()
-})
+    scan();
+});
+
+
+
 
 const scan = async () => {
-    
     const videoInputDevices = await BrowserCodeReader.listVideoInputDevices();
     codeReader.value = new BrowserBarcodeReader();
 
     // choose your media device (webcam, frontal camera, back camera, etc.)
-    let selectedDeviceId: string = videoInputDevices[0].deviceId;
-    
-    for (let i = 0; i < videoInputDevices.length; i++) {
-        const el = videoInputDevices[i];
-        if(el.label === 'Back Camera') {
-            selectedDeviceId = el.deviceId
-        }
+    if(selectedDeviceId.value === '') {
+        selectedDeviceId.value = videoInputDevices[0].deviceId;
     }
+    cameras.value = videoInputDevices
+
 
     console.log(`Started decode from camera with id ${selectedDeviceId}`);
 
-    const previewElem: HTMLVideoElement | null = document.querySelector('video');
-    console.log(previewElem)
-    if(previewElem !== null) {
+    const previewElem: HTMLVideoElement | null =
+        document.querySelector("video");
+    console.log(previewElem);
+    if (previewElem !== null) {
         // you can use the controls to stop() the scan or switchTorch() if available
-        codeReader.value.decodeFromVideoDevice(selectedDeviceId, previewElem, (res: Result, error: any) => {
-            if(res) {
-                emits('found', res.getText())
-                if(additions.value.indexOf(res.getText()) < 0) {
-                    additions.value.push(res.getText())
+        codeReader.value.decodeFromVideoDevice(
+            selectedDeviceId.value,
+            previewElem,
+            (res: Result, error: any) => {
+                if (res) {
+                    emits("found", res.getText());
+                    if (additions.value.indexOf(res.getText()) < 0) {
+                        additions.value.push(res.getText());
+                    }
                 }
             }
-        })
+        );
     }
-}
+};
+
+watch(selectedDeviceId, (selectedDeviceId, old) => {
+    scan()
+})
 
 const emits = defineEmits<{
     (e: "found", value: string): void;
-}>()
-
+}>();
 
 const restart = () => {
-    codeReader.value?.reset()
-    scan()
-}
+    codeReader.value?.reset();
+    scan();
+};
 
 const stopScanner = () => {
-    console.log('stopping')
-    codeReader.value?.reset()
-}
+    console.log("stopping");
+    codeReader.value?.reset();
+};
 
-onUnmounted(stopScanner)
+onUnmounted(stopScanner);
 </script>
