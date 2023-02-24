@@ -3,6 +3,16 @@ import moment from 'moment'
 import type { Product } from "../../../types/FoodProduct";
 
 export const prettydelta = (date: Date | string) => {
+    const diff = rawDelta(date)
+    if(diff > 1) {
+        return `${diff} days`
+    } else {
+        return `${diff} day`
+    }
+
+}
+
+export const rawDelta = (date: Date | string) => {
     const now = moment()
 
     if(!isDate(date)) {
@@ -11,12 +21,7 @@ export const prettydelta = (date: Date | string) => {
 
     const diff = moment(date).diff(now, 'days')
     
-    if(diff > 1) {
-        return `${diff} days`
-    } else {
-        return `${diff} day`
-    }
-
+    return diff
 }
 
 export const getProductName = (product: Product | undefined): string => {

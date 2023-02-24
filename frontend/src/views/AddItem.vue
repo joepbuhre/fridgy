@@ -17,8 +17,13 @@
             type="date"
         />
         <InputGroup
-            v-model="selectedLocation" 
-            :options="locations.map(el => ({value: el.ID.toString(), name: el.Name}))"
+            v-model="selectedLocation"
+            :options="
+                locations.map((el) => ({
+                    value: el.ID.toString(),
+                    name: el.Name,
+                }))
+            "
             name="Location"
             prettyname="Location"
             :compact="true"
@@ -34,7 +39,7 @@
     </div>
 
     <div class="flex gap-3">
-        <button @click="addItem" class="bg-blue-500 text-white w-2/5">
+        <button @click="prepareItem" class="bg-blue-500 text-white w-2/5">
             Add
         </button>
         <button @click="finalize" class="bg-blue-500 text-white w-2/5">
@@ -44,15 +49,15 @@
     </div>
     <div
         v-for="(item, i) in items"
-        class="my-6 justify-around border border-slate-400 p-1 rounded-sm"
+        class="my-6 justify-around border p-1 rounded-sm"
         @click="edit(i)"
     >
         <div class="mb-2">
-            <h4 class="font-semibold text-center">
-                {{ getProductName(item.foodfacts) }}
+            <h4 class="font-semibold">
+                {{ item.productName }}
             </h4>
         </div>
-        <div class="flex relative gap-5 justify-center">
+        <div class="flex relative gap-5">
             <div>
                 <span
                     class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
@@ -70,7 +75,13 @@
                 class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
                 v-if="item.location"
             >
-                <span v-if="item.location"> {{ locations.filter(l => l.ID.toString() === item.location)?.[0]?.Name }} </span>
+                <span v-if="item.location">
+                    {{
+                        locations.filter(
+                            (l) => l.ID.toString() === item.location
+                        )?.[0]?.Name
+                    }}
+                </span>
             </div>
         </div>
     </div>
@@ -110,8 +121,13 @@
                         :input-attrs="{ readonly: false }"
                     />
                     <InputGroup
-                        v-model="editItem.location" 
-                        :options="locations.map(el => ({value: el.ID.toString(), name: el.Name}))"
+                        v-model="editItem.location"
+                        :options="
+                            locations.map((el) => ({
+                                value: el.ID.toString(),
+                                name: el.Name,
+                            }))
+                        "
                         name="Location"
                         prettyname="Location"
                     />
@@ -129,7 +145,15 @@
             </div>
         </div>
     </div>
-    <ThePopup v-if="popup" @confirm="onConfirm" />
+    <ThePopup v-if="popup" @confirm="onConfirm" @cancel="popup = false" />
+
+    <ThePopup v-if="moreInfo" @confirm="addItem" @cancel="moreInfo = false">
+        <InputGroup
+            v-model="item.productName"
+            name="productname"
+            prettyname="Product Name"
+        />
+    </ThePopup>
 </template>
 
 <script setup lang="ts">
@@ -152,24 +176,30 @@ const editModal = ref(false);
 const popup = ref(false);
 
 // Define router
-const router = useRouter()
+const router = useRouter();
 
 const item = ref<AddItemProduct>({
     count: "0",
     ean: "",
     tht: "",
-    location: '1',
+    location: "1",
 });
 
 const items = ref<AddItemProduct[]>([]);
 
-const addItem = async (): Promise<void> => {
+const moreInfo = ref<boolean>(false);
+
+const prepareItem = async (): Promise<void> => {
     let found = false;
-    item.value.location = raw(selectedLocation.value)
+    item.value.location = raw(selectedLocation.value);
     for (let i = 0; i < items.value.length; i++) {
         const it = items.value[i];
-        if (it.ean === item.value.ean && it.tht === item.value.tht && it.location === item.value.location) {
-            it.count = it.count + item.value.count;
+        if (
+            it.ean === item.value.ean &&
+            it.tht === item.value.tht &&
+            it.location === item.value.location
+        ) {
+            it.count = (parseInt(it.count) + parseInt(item.value.count)).toString();
             found = true;
         }
     }
@@ -181,16 +211,23 @@ const addItem = async (): Promise<void> => {
     }
 
     if (found === false) {
-        const foodfact: Product =
-            (await wff.get(`/product/${item.value.ean}.json`)).data?.product ||
-            null;
+        const foodfact: Product | undefined = (
+            await wff.get(`/product/${item.value.ean}.json`)
+        ).data?.product;
 
-        // TODO FIX JSON PARSE
-        items.value.push({
-            ...JSON.parse(JSON.stringify(item.value)),
-            foodfacts: foodfact,
-        });
+        if (foodfact === undefined) {
+            // Product is unrecognized, ask for information
+            moreInfo.value = true;
+        } else {
+            item.value.productName = getProductName(foodfact)
+            addItem();
+        }
     }
+};
+
+const addItem = () => {
+    moreInfo.value = false;
+    items.value.push(raw(item.value));
 };
 
 const removeItem = () => {
@@ -206,7 +243,7 @@ const onConfirm = (val: boolean) => {
     if (val) {
         console.log("adding to database");
         api.post("/items/create", items.value);
-        router.push('/')
+        router.push("/");
     }
     popup.value = false;
 };
@@ -231,7 +268,7 @@ const eanFound = (ean: string) => {
 
 // Get / Set locations
 const locations = ref<Locations[]>([]);
-const selectedLocation = ref<string>('1');
+const selectedLocation = ref<string>("1");
 onMounted(() => {
     api.get("/locations").then((res) => {
         locations.value = res.data;

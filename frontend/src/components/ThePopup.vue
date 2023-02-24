@@ -8,7 +8,7 @@
                 <TheButton @click="emits('confirm', true)">
                     OK
                 </TheButton>
-                <TheButton @click="emits('confirm', false)">
+                <TheButton @click="emits('cancel', false)">
                     Cancel
                 </TheButton>
             </div>
@@ -22,6 +22,7 @@ import TheButton from './TheButton.vue';
 
 const emits = defineEmits<{
     (e: "confirm", value: boolean): void;
+    (e: "cancel", value: boolean): void;
 }>()
 
 </script>

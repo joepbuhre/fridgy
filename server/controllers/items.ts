@@ -11,7 +11,9 @@ export const getAllItem = (req: Request, res: Response) => {
             select: {
                 Name: true
             }
-        } }
+        },
+        Item: true
+    }
     }).then((db) => {
         res.send(db);
     });
@@ -65,7 +67,23 @@ export const createItem = (req: Request, res: Response) => {
                     EAN: ii.ean,
                     Expiry: new Date(ii.tht),
                     Stock: parseInt(ii.count),
-                    LocationID: parseInt(ii.location)
+                    Location: {
+                        connect: {
+                            ID: parseInt(ii.location)
+                        }
+                    },
+                    Item: {
+                        connectOrCreate: {
+                            create: {
+                                EAN: ii.ean,
+                                ProductName: ii?.productName || null,
+
+                            },
+                            where: {
+                                EAN: ii.ean
+                            }
+                        }
+                    }
                 },
             })
         )

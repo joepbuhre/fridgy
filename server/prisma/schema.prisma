@@ -23,10 +23,14 @@ model ItemsInventory {
     Expiry     DateTime
     Location   Locations @relation(fields: [LocationID], references: [ID])
     LocationID Int
+    Item       Items     @relation(fields: [ItemId], references: [ID])
+    ItemId     Int
 }
 
-// model ItemsDetails {
-//     EAN         String @unique
-//     Details     String?
-//     Inventory   ItemsInventory[]
-// }
+model Items {
+    ID          Int              @id @default(autoincrement())
+    EAN         String           @unique
+    Inventory   ItemsInventory[]
+    ProductName String?
+    Merk        String?
+}

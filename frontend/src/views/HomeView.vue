@@ -11,11 +11,10 @@
             :to="{name: 'Item', params: {EAN: item.EAN}}"
             >
             <div
-                class="flex relative my-6 justify-around border border-slate-400 p-1 rounded-sm"
+                class="flex relative my-6 justify-between border border-slate-400 p-1 rounded-sm px-5"
             >
                 <div class="w-2/3">
-                    <h4 class="font-semibold">{{ getProductName(meta?.[item.EAN]) }}</h4>
-                    <span>Vriezer</span>
+                    <h4 class="font-semibold mb-1">{{ item.Item.ProductName }}</h4>
                     <div class="flex gap-4">
                         <span
                             class="bg-green-100 text-green-500 border border-green-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
@@ -30,12 +29,14 @@
                         >
                     </div>
                 </div>
-                <div class="w-auto">
-                    <div
-                        class="text-red-700 bg-red-100 font-bold px-2 py-1 rounded-md"
-                    >
+                <div class="w-auto text-xs mt-2" v-if="rawDelta(item.Expiry)">
+                    <TheLabel :color="{
+                        'red': rawDelta(item.Expiry) < 3
+                        ,'yellow': rawDelta(item.Expiry) >= 3 && rawDelta(item.Expiry) < 7
+                        ,'green': rawDelta(item.Expiry) >= 7 && rawDelta(item.Expiry) < 15
+                        }">
                         {{ prettydelta(item.Expiry) }}
-                    </div>
+                    </TheLabel>
                 </div>
             </div>
         </router-link>
@@ -50,15 +51,15 @@ import type { Product } from "../../../types/FoodProduct";
 import type { ProductResponse } from "../../../types/FoodResponse";
 import type { ItemsInventoryDeep } from "../../../types/AddItem";
 import axios from "axios";
-import { getProductName, prettydelta } from "../utils/helpers";
+import { getProductName, prettydelta, rawDelta } from "../utils/helpers";
 import TheButton from "../components/TheButton.vue";
 import InputGroup from "../components/InputGroup.vue";
+import TheLabel from "../components/TheLabel.vue";
 
 // Implement search
 const search = ref<string>("");
 const visibleItems = computed(() => {
     return data.value?.filter((item: ItemsInventory) => {
-        console.log(getProductName(meta.value?.[item.EAN])?.search(search.value))
         return item.EAN.search(search.value) > -1 || getProductName(meta.value?.[item.EAN])?.toLowerCase().search(search.value.toLowerCase()) > -1;
     });
 });
@@ -71,7 +72,6 @@ const resultZX = ref<any>(null);
 const getItems = () => {
     api.get("/items").then((res) => {
         data.value = res.data;
-        console.log(res);
         getMetaData()
     });
 }
