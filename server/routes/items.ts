@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { createItem, deleteItem, getAllItem, getItem, updateItem } from "../controllers/items";
+import { createItem, deleteItem, getAllItem, getItem, getShoppingList, updateItem } from "../controllers/items";
 const items = Router()
 
 // router.use('/items', items)
@@ -7,6 +7,8 @@ const items = Router()
 items.get('/', getAllItem)
 
 items.put('/', updateItem)
+
+items.get('/shopping-list', getShoppingList)
 
 items.get('/:EAN', getItem)
 

@@ -29,25 +29,6 @@
                 />
             </TransitionGroup>
         </button>
-        <transition
-            name="slide-fade"
-            enter-active-class="ease duration-200"
-            leave-active-class=" duration-200"
-            enter-from-class="translate-x-10 opacity-0"
-            leave-to-class="translate-x-10 opacity-0"
-        >
-            <nav
-                v-show="!collapsed"
-                class="fixed right-0 top-0 bottom-0 z-30 h-screen w-8/12 p-5 bg-slate-100 text-dark-blue md:relative md:p-0 md:text-inherit md:inset-auto md:h-auto md:w-auto md:bg-transparent md:flex-1 md:pr-20"
-                :class="base.mobileClass"
-            >
-                <ul class="pt-2 flex justify-end flex-col md:flex-row gap-6">
-                    <li>
-                            <span class="font-serif font-semibold">Contact</span>
-                    </li>
-                </ul>
-            </nav>
-        </transition>
         <TheOverlay @click="toggleMenu" :show="!collapsed" />
         <transition
         name="slide-fade"
@@ -57,7 +38,8 @@
         leave-to-class="translate-x-10 opacity-0"
         >
         <nav v-if="!collapsed" class="h-screen w-2/3 bg-slate-200 absolute top-0 bottom-0 right-0 p-10">
-                <router-link to="/locations">Locations</router-link>
+                <router-link class="block my-4" to="/locations">Locations</router-link>
+                <router-link class="block my-4" to="/shopping-list">Shopping list</router-link>
             </nav>
         </transition>
     </header>

@@ -112,7 +112,8 @@ export const updateItem = (req: Request, res: Response) => {
         prisma.items.update({
             data: {
                 EAN: body.EAN,
-                ProductName: body.ProductName
+                ProductName: body.ProductName,
+                Reorder: Boolean(body.Reorder)
             },
             where: {
                 ID: body.ID,
@@ -141,3 +142,19 @@ export const updateItem = (req: Request, res: Response) => {
             res.status(500).send(err);
         });
 };
+
+export const getShoppingList = (req: Request, res: Response) => {
+    prisma.items.findMany({
+        where: {
+            Reorder: true
+        }
+    }).then(resp => {
+        logger.debug('got shoppinglist')
+        res.send(resp)
+    }).catch(err => {
+        logger.debug('Error occured while fetching shopping list')
+        logger.debug(err)
+        res.status(500).end()
+
+    })
+}

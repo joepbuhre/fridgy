@@ -33,4 +33,5 @@ model Items {
     Inventory   ItemsInventory[]
     ProductName String?
     Merk        String?
+    Reorder     Boolean          @default(false)
 }

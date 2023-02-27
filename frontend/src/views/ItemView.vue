@@ -9,6 +9,12 @@
             name="Name"
             prettyname="Name"
         />
+        <InputGroup
+            v-model="items.Reorder"
+            name="Reorder"
+            prettyname="Reorder"
+            type="checkbox"
+        />
         <div class="grid grid-cols-2 gap-8 my-4" >
             <TheButton class="bg-green-700" @click="updateItem((items as any))">Sla op</TheButton>
             <TheButton class="bg-red-700 flex gap-3" @click="deleteItem((items?.ID as number))"> <Trash /> Verwijder</TheButton>
