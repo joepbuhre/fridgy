@@ -1,55 +1,41 @@
 <template>
-    <h4 class="font-semibold text-2xl mt-2">{{ inventory?.Item.ProductName }}</h4>
+    <h4 class="font-semibold text-2xl mt-2">{{ items?.ProductName }}</h4>
     <div
-        v-if="inventory"
+        v-if="items"
         class=""
     >
         <InputGroup 
-            v-model="inventory.Item.ProductName"
+            v-model="items.ProductName"
             name="Name"
             prettyname="Name"
         />
-        <InputGroup 
-            v-model.number="inventory.LocationID"
-            :options="locationOptions"
-            name="Locations"
-            prettyname="Locations"
-        />
-        <InputGroup 
-            v-model="inventory.Expiry"
-            name="Date"
-            prettyname="Expiry Date"
-            type="date"
-        />
-        <InputGroup
-            v-model.number="inventory.Stock"
-            name="Stock"
-            prettyname="Stock"
-            type="number"
-        />
         <div class="grid grid-cols-2 gap-8 my-4" >
-            <TheButton class="bg-green-700" @click="updateItem((inventory as any))">Sla op</TheButton>
-            <TheButton class="bg-red-700 flex gap-3" @click="deleteItem((inventory?.ID as number))"> <Trash /> Verwijder</TheButton>
+            <TheButton class="bg-green-700" @click="updateItem((items as any))">Sla op</TheButton>
+            <TheButton class="bg-red-700 flex gap-3" @click="deleteItem((items?.ID as number))"> <Trash /> Verwijder</TheButton>
+        </div>
+    </div>
+    <div>
+        <h4 class="text-lg">Current stock</h4>
+        <div v-for="st in items?.Inventory" class="grid grid-cols-3 gap-5">
+            <InputGroup v-model.number="st.LocationID" :options="locationOptions" name="Location" prettyname="Location" :compact="true" /> 
+            <InputGroup name="Date"  prettyname="Date" :compact="true" v-model="st.Expiry" type="date" /> 
+            <InputGroup name="Stock" prettyname="Stock" :compact="true" v-model="st.Stock" />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ItemsInventory, Locations } from ".prisma/client";
-import axios from "axios";
+import { Locations } from ".prisma/client";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ItemsInventoryDeep } from "../../../types/AddItem";
+import { ItemsDeep, ItemsInventoryDeep } from "../../../types/AddItem";
 import type { Product } from "../../../types/FoodProduct";
-import type { ProductResponse } from "../../../types/FoodResponse";
 import InputGroup from "../components/InputGroup.vue";
 import TheButton from "../components/TheButton.vue";
 import { api } from "../utils/api";
 import { Trash } from "lucide-vue-next";
-import { getProductName } from "../utils/helpers";
 
-const productInfo = ref<Product | undefined>(undefined);
-const inventory = ref<ItemsInventoryDeep | undefined>(undefined);
+const items = ref<ItemsDeep | undefined>(undefined);
 
 // Get locations
 const locations = ref<Locations[] | undefined>(undefined)
@@ -61,7 +47,7 @@ const router = useRouter()
 
 const getItem = async () => {
     await api.get(`/items/${route.params.EAN}`).then((res) => {
-        inventory.value = res.data;
+        items.value = res.data;
     });
 }
 
@@ -72,14 +58,6 @@ onMounted(async () => {
     })
     await getItem()
 
-    if(inventory.value?.EAN) {
-        axios
-            .get(`https://world.openfoodfacts.org/api/v2/product/${inventory.value?.EAN}.json`)
-            .then((res) => {
-                const result: ProductResponse = res.data;
-                productInfo.value = result.product;
-            });
-    }
 });
 
 
@@ -95,7 +73,6 @@ const deleteItem = (it: number) => {
 
 const updateItem = (it: ItemsInventoryDeep) => {
     api.put('/items', it).then(res => {
-        console.log(res.data)
         router.push('/')
     })
 }

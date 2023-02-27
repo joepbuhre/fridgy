@@ -1,38 +1,46 @@
 import { ItemsInventory, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import { AddItemProduct, ItemsInventoryDeep } from "../../types/AddItem";
+import { AddItemProduct, ItemsDeep, ItemsInventoryDeep, ItemsInventoryDeepOld } from "../../types/AddItem";
 import { logger } from "../utils/logger";
 
 const prisma = new PrismaClient();
 
 export const getAllItem = (req: Request, res: Response) => {
-    prisma.itemsInventory.findMany({
-        include: { Location: {
-            select: {
-                Name: true
-            }
-        },
-        Item: true
-    }
-    }).then((db) => {
-        res.send(db);
-    });
+    prisma.items
+        .findMany({
+            include: {
+                Inventory: {
+                    include: {
+                        Location: true,
+                    },
+                },
+            },
+        })
+        .then((db) => {
+            res.send(db);
+        });
 };
 
 export const getItem = (req: Request, res: Response) => {
-    prisma.itemsInventory
+    prisma.items
         .findFirst({
             where: { EAN: req.params.EAN },
-            include: { Location: true, Item: true }
+            include: {
+                Inventory: {
+                    include: {
+                        Location: true,
+                    },
+                },
+            },
         })
         .then((resp) => {
-            logger.debug('fetched item ' + req.params.EAN)
+            logger.debug("fetched item " + req.params.EAN);
             res.send(resp);
         })
-        .catch(err => {
-            logger.error(err)
-            res.status(500).send(err)
-        })
+        .catch((err) => {
+            logger.error(err);
+            res.status(500).send(err);
+        });
 };
 
 export const deleteItem = (req: Request, res: Response) => {
@@ -43,7 +51,7 @@ export const deleteItem = (req: Request, res: Response) => {
             },
         })
         .then((resp) => {
-            res.send(resp)
+            res.send(resp);
             logger.debug(`sucesfully delete record with id: ${req.params.ID}`);
         })
         .catch((err) => {
@@ -69,21 +77,20 @@ export const createItem = (req: Request, res: Response) => {
                     Stock: parseInt(ii.count),
                     Location: {
                         connect: {
-                            ID: parseInt(ii.location)
-                        }
+                            ID: parseInt(ii.location),
+                        },
                     },
                     Item: {
                         connectOrCreate: {
                             create: {
                                 EAN: ii.ean,
                                 ProductName: ii?.productName || null,
-
                             },
                             where: {
-                                EAN: ii.ean
-                            }
-                        }
-                    }
+                                EAN: ii.ean,
+                            },
+                        },
+                    },
                 },
             })
         )
@@ -99,32 +106,38 @@ export const createItem = (req: Request, res: Response) => {
 };
 
 export const updateItem = (req: Request, res: Response) => {
-    let body: ItemsInventoryDeep = req.body
+    let body: ItemsDeep = req.body;
 
     Promise.all([
         prisma.items.update({
-            data: body.Item,
-            where: {
-                ID: body.ID
-            }
-        }),
-        prisma.itemsInventory.update({
             data: {
                 EAN: body.EAN,
-                Expiry: new Date(body.Expiry),
-                LocationID: body.LocationID,
-                Stock: body.Stock,
+                ProductName: body.ProductName
             },
             where: {
-                ID: body.ID
-            }
+                ID: body.ID,
+            },
+        }),
+        ...body.Inventory.map(el => {
+            return prisma.itemsInventory.update({
+                data: {
+                    Stock: el.Stock,
+                    LocationID: el.LocationID,
+                    Expiry: new Date(el.Expiry)
+                },
+                where: {
+                    ID: el.ID
+                }
+            })
         })
-    ]).then(resp => {
-        logger.debug('Updated item', body.EAN)
-        res.send(resp)
-    }).catch(err => {
-        logger.error(err)
-        res.status(500).send(err)
-    })
-
-}
+    ])
+        .then((resp) => {
+            logger.debug("Updated item", body.EAN);
+            console.log(resp)
+            res.send(resp);
+        })
+        .catch((err) => {
+            logger.error(err);
+            res.status(500).send(err);
+        });
+};
