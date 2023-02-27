@@ -212,8 +212,8 @@ const prepareItem = async (): Promise<void> => {
 
     if (found === false) {
         const foodfact: Product | undefined = (
-            await wff.get(`/product/${item.value.ean}.json`)
-        ).data?.product;
+            await wff.get(`/product/${item.value.ean}.json`).catch(err => undefined)
+        )?.data?.product;
 
         if (foodfact === undefined) {
             // Product is unrecognized, ask for information
