@@ -23,7 +23,7 @@ export const getItem = (req: Request, res: Response) => {
     prisma.itemsInventory
         .findFirst({
             where: { EAN: req.params.EAN },
-            include: { Location: true }
+            include: { Location: true, Item: true }
         })
         .then((resp) => {
             logger.debug('fetched item ' + req.params.EAN)
@@ -101,18 +101,26 @@ export const createItem = (req: Request, res: Response) => {
 export const updateItem = (req: Request, res: Response) => {
     let body: ItemsInventoryDeep = req.body
 
-    prisma.itemsInventory.update({
-        data: {
-            EAN: body.EAN,
-            Expiry: new Date(body.Expiry),
-            LocationID: body.LocationID,
-            Stock: body.Stock
-        },
-        where: {
-            ID: body.ID
-        }
-    }).then(resp => {
-        logger.debug('Updated item', resp.EAN)
+    Promise.all([
+        prisma.items.update({
+            data: body.Item,
+            where: {
+                ID: body.ID
+            }
+        }),
+        prisma.itemsInventory.update({
+            data: {
+                EAN: body.EAN,
+                Expiry: new Date(body.Expiry),
+                LocationID: body.LocationID,
+                Stock: body.Stock,
+            },
+            where: {
+                ID: body.ID
+            }
+        })
+    ]).then(resp => {
+        logger.debug('Updated item', body.EAN)
         res.send(resp)
     }).catch(err => {
         logger.error(err)

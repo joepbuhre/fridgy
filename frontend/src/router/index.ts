@@ -17,6 +17,11 @@ const router = createRouter({
             path: "/add",
             component: () => import("../views/AddItem.vue"),
         },
+        {
+            name: "Locations",
+            path: "/locations",
+            component: () => import("../views/Locations.vue")
+        }
     ],
     history: createWebHashHistory(),
 });

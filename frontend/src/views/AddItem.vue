@@ -263,7 +263,7 @@ const eanFound = (ean: string) => {
 
     editModal.value = false;
 
-    addItem();
+    prepareItem();
 };
 
 // Get / Set locations

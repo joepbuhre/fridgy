@@ -1,9 +1,14 @@
 <template>
-    <h4 class="font-semibold text-2xl mt-2">{{ getProductName(productInfo) }}</h4>
+    <h4 class="font-semibold text-2xl mt-2">{{ inventory?.Item.ProductName }}</h4>
     <div
         v-if="inventory"
         class=""
     >
+        <InputGroup 
+            v-model="inventory.Item.ProductName"
+            name="Name"
+            prettyname="Name"
+        />
         <InputGroup 
             v-model.number="inventory.LocationID"
             :options="locationOptions"
@@ -89,7 +94,6 @@ const deleteItem = (it: number) => {
 }
 
 const updateItem = (it: ItemsInventoryDeep) => {
-    
     api.put('/items', it).then(res => {
         console.log(res.data)
         router.push('/')
