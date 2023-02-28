@@ -1,6 +1,6 @@
 <template>
     <span
-        class="border border-solid font-bold px-2 py-1 rounded-sm"
+        class="border border-solid font-bold px-2  rounded-sm"
         :class="colorClass"
     >
         <slot></slot>

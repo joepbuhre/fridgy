@@ -14,10 +14,10 @@ export interface AddItemProduct {
 }
 
 interface ItemsInventoryDeep extends ItemsInventory  {
-    Location: Locations,
+    Location?: Locations,
 }
 interface ItemsInventoryDeepOld extends ItemsInventory  {
-    Location: Locations,
+    Location?: Locations,
     Item: Items
 }
 

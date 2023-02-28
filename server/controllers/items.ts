@@ -2,6 +2,7 @@ import { ItemsInventory, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { AddItemProduct, ItemsDeep, ItemsInventoryDeep, ItemsInventoryDeepOld } from "../../types/AddItem";
 import { logger } from "../utils/logger";
+import * as items from '../models/items'
 
 const prisma = new PrismaClient();
 
@@ -120,8 +121,15 @@ export const updateItem = (req: Request, res: Response) => {
             },
         }),
         ...body.Inventory.map(el => {
-            return prisma.itemsInventory.update({
-                data: {
+            return prisma.itemsInventory.upsert({
+                create: {
+                    Stock: el.Stock,
+                    LocationID: el.LocationID,
+                    Expiry: new Date(el.Expiry),
+                    EAN: el.EAN,
+                    ItemId: el.ItemId
+                },
+                update: {
                     Stock: el.Stock,
                     LocationID: el.LocationID,
                     Expiry: new Date(el.Expiry)
@@ -156,5 +164,11 @@ export const getShoppingList = (req: Request, res: Response) => {
         logger.debug(err)
         res.status(500).end()
 
+    })
+}
+
+export const consumeItem = (req: Request, res: Response) => {
+    items.consumeItem(parseInt(req.params.ID)).then(resp => {
+        res.send(resp)
     })
 }

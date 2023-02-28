@@ -22,11 +22,22 @@
     </div>
     <div>
         <h4 class="text-lg">Current stock</h4>
-        <div v-for="st in items?.Inventory" class="grid grid-cols-3 gap-5">
-            <InputGroup v-model.number="st.LocationID" :options="locationOptions" name="Location" prettyname="Location" :compact="true" /> 
-            <InputGroup name="Date"  prettyname="Date" :compact="true" v-model="st.Expiry" type="date" /> 
-            <InputGroup name="Stock" prettyname="Stock" :compact="true" v-model="st.Stock" />
+        <div v-for="st in items?.Inventory" class="flex gap-3">
+            <InputGroup class="w-2/5" v-model.number="st.LocationID" :options="locationOptions" name="Location" prettyname="Location" :compact="true" /> 
+            <InputGroup class="w-2/5" name="Date"  prettyname="Date" :compact="true" v-model="st.Expiry" type="date" /> 
+            <InputGroup class="w-1/5" name="Stock" prettyname="Stock" :compact="true" v-model.number="st.Stock" />
+            <button @click="consume(st.ID)">
+                <Cookie />
+            </button>
         </div>
+        <button @click="items?.Inventory.push({
+            ID: 0,
+            EAN: items.EAN,
+            Expiry: new Date(),
+            LocationID: 1,
+            Stock: 0,
+            ItemId: items.ID,
+        })">Voeg voorraad toe</button>
     </div>
 </template>
 
@@ -39,7 +50,7 @@ import type { Product } from "../../../types/FoodProduct";
 import InputGroup from "../components/InputGroup.vue";
 import TheButton from "../components/TheButton.vue";
 import { api } from "../utils/api";
-import { Trash } from "lucide-vue-next";
+import { Trash, Cookie } from "lucide-vue-next";
 
 const items = ref<ItemsDeep | undefined>(undefined);
 
@@ -81,5 +92,15 @@ const updateItem = (it: ItemsInventoryDeep) => {
     api.put('/items', it).then(res => {
         router.push('/')
     })
+}
+
+
+// Consume Items
+const consume = (ItemInventoryID: number) => {
+    api
+        .post(`/items/consume/${ItemInventoryID}`)
+        .then(res => {
+            items.value = res.data
+        })
 }
 </script>

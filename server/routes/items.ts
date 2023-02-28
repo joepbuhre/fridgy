@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { createItem, deleteItem, getAllItem, getItem, getShoppingList, updateItem } from "../controllers/items";
+import { createItem, deleteItem, getAllItem, getItem, getShoppingList, updateItem, consumeItem} from "../controllers/items";
 const items = Router()
 
 // router.use('/items', items)
@@ -16,5 +16,6 @@ items.delete('/:ID', deleteItem)
 
 items.post('/create', createItem)
 
+items.post('/consume/:ID', consumeItem)
 
 export default items

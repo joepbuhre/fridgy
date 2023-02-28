@@ -22,7 +22,7 @@
                     <h4 class="font-semibold mb-1">
                         {{ item.ProductName }}
                     </h4>
-                    <div class="flex gap-4">
+                    <div class="flex gap-4" v-if="item.Stock > 0">
                         <span
                             class="bg-green-100 text-green-500 border border-green-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
                         >
@@ -34,8 +34,11 @@
                             {{ item.Location }}
                         </span>
                     </div>
+                    <div v-else>
+                        <TheLabel class="text-sm" color="red">niet op voorraad</TheLabel>
+                    </div>
                 </div>
-                <div class="w-auto text-xs mt-2" v-if="rawDelta(item.Expiry)">
+                <div class="w-auto text-xs mt-2" v-if="!Number.isNaN(rawDelta(item.Expiry))">
                     <TheLabel
                         :color="{
                             red: rawDelta(item.Expiry) < 3,
@@ -79,8 +82,10 @@ const visibleItems = computed(() => {
             return {
                 ...it,
                 Stock: it.Inventory.reduce((a, b) => a + b.Stock, 0),
-                Expiry: new Date(Math.min.apply(it.Inventory.map(el => el.Expiry))),
-                Location: it.Inventory.map(el => el.Location.Name).join(', ')
+                Expiry: new Date(
+                    Math.min.apply(0, it.Inventory.map(el => (new Date(el.Expiry).getTime())))
+                ),
+                Location: it.Inventory.map(el => el?.Location?.Name).join(', ')
             }
         })
         .sort((a, b) => {
