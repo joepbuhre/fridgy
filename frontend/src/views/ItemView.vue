@@ -116,7 +116,7 @@ const deleteItem = (it: number) => {
 };
 
 const updateItem = (it: ItemsInventoryDeep) => {
-    api.put("/items", it).then((res) => {
+    api.put("/items/inventory", it).then((res) => {
         router.push("/");
     });
 };

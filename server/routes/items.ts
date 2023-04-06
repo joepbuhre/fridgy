@@ -7,14 +7,20 @@ import {
     getShoppingList,
     updateItem,
     consumeItem,
+    getAllItemInventory,
+    updateItemInventory,
 } from "../controllers/items";
 const items = Router();
 
 // router.use('/items', items)
 
-items.get("/", getAllItem);
+items.get("/inventory", getAllItemInventory);
+
+items.get('/', getAllItem)
 
 items.put("/", updateItem);
+
+items.put("/inventory", updateItemInventory);
 
 items.get("/shopping-list", getShoppingList);
 

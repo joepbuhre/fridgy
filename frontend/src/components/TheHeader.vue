@@ -45,10 +45,12 @@
                 v-if="!collapsed"
                 class="h-screen w-2/3 bg-slate-200 absolute top-0 bottom-0 right-0 p-10"
             >
-                <router-link class="block my-4" to="/locations"
+                <router-link class="block my-4" to="/items" @click="toggleMenu"
+                    >Items</router-link>
+                <router-link class="block my-4" to="/locations" @click="toggleMenu"
                     >Locations</router-link
                 >
-                <router-link class="block my-4" to="/shopping-list"
+                <router-link class="block my-4" to="/shopping-list" @click="toggleMenu"
                     >Shopping list</router-link
                 >
             </nav>

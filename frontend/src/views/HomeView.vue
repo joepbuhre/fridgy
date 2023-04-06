@@ -120,9 +120,10 @@ const ff = ref<Product | null | undefined>(null);
 const resultZX = ref<any>(null);
 
 const getItems = () => {
-    api.get("/items").then((res) => {
+    api.get("/items/inventory").then((res) => {
         data.value = res.data;
     });
+    console.log(import.meta.env)
 };
 
 onMounted(getItems);

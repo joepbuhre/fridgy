@@ -2,6 +2,7 @@ import { isDate } from "@vue/shared";
 import moment from "moment";
 import type { Product } from "../../../types/FoodProduct";
 
+
 export const prettydelta = (date: Date | string) => {
     const diff = rawDelta(date);
     if (diff > 1) {
@@ -40,3 +41,11 @@ export const getProductName = (product: Product | undefined): string => {
 export const raw = (variable: any) => {
     return JSON.parse(JSON.stringify(variable));
 };
+
+export const getAuthRedirect = (): string => {
+
+    const base = new URL(import.meta.env.VITE_LOGIN_URL)
+    base.searchParams.append('rd', window.location.href)
+
+    return base.toString()
+}

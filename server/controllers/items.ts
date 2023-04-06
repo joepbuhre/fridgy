@@ -13,6 +13,14 @@ const prisma = new PrismaClient();
 
 export const getAllItem = (req: Request, res: Response) => {
     prisma.items
+        .findMany({})
+        .then((db) => {
+            res.send(db);
+        });
+};
+
+export const getAllItemInventory = (req: Request, res: Response) => {
+    prisma.items
         .findMany({
             include: {
                 Inventory: {
@@ -111,7 +119,7 @@ export const createItem = (req: Request, res: Response) => {
         });
 };
 
-export const updateItem = (req: Request, res: Response) => {
+export const updateItemInventory = (req: Request, res: Response) => {
     let body: ItemsDeep = req.body;
 
     Promise.all([
@@ -143,6 +151,32 @@ export const updateItem = (req: Request, res: Response) => {
                     ID: el.ID,
                 },
             });
+        }),
+    ])
+        .then((resp) => {
+            logger.debug("Updated item", body.EAN);
+            console.log(resp);
+            res.send(resp);
+        })
+        .catch((err) => {
+            logger.error(err);
+            res.status(500).send(err);
+        });
+};
+
+export const updateItem = (req: Request, res: Response) => {
+    let body: ItemsDeep = req.body;
+    console.log(req.body)
+    Promise.all([
+        prisma.items.update({
+            data: {
+                EAN: body.EAN,
+                ProductName: body.ProductName,
+                Reorder: Boolean(body.Reorder),
+            },
+            where: {
+                ID: body.ID,
+            },
         }),
     ])
         .then((resp) => {
