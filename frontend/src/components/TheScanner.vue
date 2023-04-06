@@ -72,8 +72,8 @@ const prepare = async () => {
     const videoInputDevices = await BrowserCodeReader.listVideoInputDevices();
     cameras.value = videoInputDevices;
     selectedDeviceId.value = videoInputDevices[0].deviceId;
-    if(main.getpreferredCamera === '') {
-        main.setCamera(selectedDeviceId.value)
+    if (main.getpreferredCamera === "") {
+        main.setCamera(selectedDeviceId.value);
     }
 };
 
@@ -114,7 +114,7 @@ onMounted(async () => {
 });
 
 watch(selectedDeviceId, (selectedDeviceId, old) => {
-    if(old !== '') {
+    if (old !== "") {
         scan();
         main.setCamera(selectedDeviceId);
     }

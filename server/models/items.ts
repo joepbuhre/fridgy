@@ -28,23 +28,22 @@ export const consumeItem = async (ItemInventoryID: number) => {
     } else {
         await prisma.itemsInventory.update({
             data: {
-                Stock: (count.Stock - 1)
+                Stock: count.Stock - 1,
             },
             where: {
-                ID: ItemInventoryID
-            }
-        })
+                ID: ItemInventoryID,
+            },
+        });
     }
 
-    return await prisma.items
-        .findFirst({
-            where: { EAN: count.EAN },
-            include: {
-                Inventory: {
-                    include: {
-                        Location: true,
-                    },
+    return await prisma.items.findFirst({
+        where: { EAN: count.EAN },
+        include: {
+            Inventory: {
+                include: {
+                    Location: true,
                 },
             },
-        })
+        },
+    });
 };

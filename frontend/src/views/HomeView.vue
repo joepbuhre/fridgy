@@ -35,10 +35,15 @@
                         </span>
                     </div>
                     <div v-else>
-                        <TheLabel class="text-sm" color="red">niet op voorraad</TheLabel>
+                        <TheLabel class="text-sm" color="red"
+                            >niet op voorraad</TheLabel
+                        >
                     </div>
                 </div>
-                <div class="w-auto text-xs mt-2" v-if="!Number.isNaN(rawDelta(item.Expiry))">
+                <div
+                    class="w-auto text-xs mt-2"
+                    v-if="!Number.isNaN(rawDelta(item.Expiry))"
+                >
                     <TheLabel
                         :color="{
                             red: rawDelta(item.Expiry) < 3,
@@ -76,30 +81,38 @@ const visibleItems = computed(() => {
     return data.value
         ?.filter((item: ItemsDeep) => {
             return (
-                item.EAN.search(search.value) > -1 || (item.ProductName || '')?.toLowerCase().search(search.value.toLowerCase()) > -1
+                item.EAN.search(search.value) > -1 ||
+                (item.ProductName || "")
+                    ?.toLowerCase()
+                    .search(search.value.toLowerCase()) > -1
             );
-        }).map(it => {
+        })
+        .map((it) => {
             return {
                 ...it,
                 Stock: it.Inventory.reduce((a, b) => a + b.Stock, 0),
                 Expiry: new Date(
-                    Math.min.apply(0, it.Inventory.map(el => (new Date(el.Expiry).getTime())))
+                    Math.min.apply(
+                        0,
+                        it.Inventory.map((el) => new Date(el.Expiry).getTime())
+                    )
                 ),
-                Location: it.Inventory.map(el => el?.Location?.Name).join(', ')
-            }
+                Location: it.Inventory.map((el) => el?.Location?.Name).join(
+                    ", "
+                ),
+            };
         })
         .sort((a, b) => {
-            if(a.ProductName && b.ProductName) {
-
-            if (a.ProductName < b.ProductName) {
-                return -1;
+            if (a.ProductName && b.ProductName) {
+                if (a.ProductName < b.ProductName) {
+                    return -1;
+                }
+                if (a.ProductName > b.ProductName) {
+                    return 1;
+                }
             }
-            if (a.ProductName > b.ProductName) {
-                return 1;
-            }
-            }
-            return 0;        
-        })
+            return 0;
+        });
 });
 
 const data = ref<ItemsDeep[] | null>(null);
@@ -117,5 +130,4 @@ onMounted(getItems);
 const meta = ref<{
     [key: string]: Product;
 }>({});
-
 </script>

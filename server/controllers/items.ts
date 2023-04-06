@@ -1,8 +1,13 @@
 import { ItemsInventory, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import { AddItemProduct, ItemsDeep, ItemsInventoryDeep, ItemsInventoryDeepOld } from "../../types/AddItem";
+import {
+    AddItemProduct,
+    ItemsDeep,
+    ItemsInventoryDeep,
+    ItemsInventoryDeepOld,
+} from "../../types/AddItem";
 import { logger } from "../utils/logger";
-import * as items from '../models/items'
+import * as items from "../models/items";
 
 const prisma = new PrismaClient();
 
@@ -114,35 +119,35 @@ export const updateItem = (req: Request, res: Response) => {
             data: {
                 EAN: body.EAN,
                 ProductName: body.ProductName,
-                Reorder: Boolean(body.Reorder)
+                Reorder: Boolean(body.Reorder),
             },
             where: {
                 ID: body.ID,
             },
         }),
-        ...body.Inventory.map(el => {
+        ...body.Inventory.map((el) => {
             return prisma.itemsInventory.upsert({
                 create: {
                     Stock: el.Stock,
                     LocationID: el.LocationID,
                     Expiry: new Date(el.Expiry),
                     EAN: el.EAN,
-                    ItemId: el.ItemId
+                    ItemId: el.ItemId,
                 },
                 update: {
                     Stock: el.Stock,
                     LocationID: el.LocationID,
-                    Expiry: new Date(el.Expiry)
+                    Expiry: new Date(el.Expiry),
                 },
                 where: {
-                    ID: el.ID
-                }
-            })
-        })
+                    ID: el.ID,
+                },
+            });
+        }),
     ])
         .then((resp) => {
             logger.debug("Updated item", body.EAN);
-            console.log(resp)
+            console.log(resp);
             res.send(resp);
         })
         .catch((err) => {
@@ -152,23 +157,25 @@ export const updateItem = (req: Request, res: Response) => {
 };
 
 export const getShoppingList = (req: Request, res: Response) => {
-    prisma.items.findMany({
-        where: {
-            Reorder: true
-        }
-    }).then(resp => {
-        logger.debug('got shoppinglist')
-        res.send(resp)
-    }).catch(err => {
-        logger.debug('Error occured while fetching shopping list')
-        logger.debug(err)
-        res.status(500).end()
-
-    })
-}
+    prisma.items
+        .findMany({
+            where: {
+                Reorder: true,
+            },
+        })
+        .then((resp) => {
+            logger.debug("got shoppinglist");
+            res.send(resp);
+        })
+        .catch((err) => {
+            logger.debug("Error occured while fetching shopping list");
+            logger.debug(err);
+            res.status(500).end();
+        });
+};
 
 export const consumeItem = (req: Request, res: Response) => {
-    items.consumeItem(parseInt(req.params.ID)).then(resp => {
-        res.send(resp)
-    })
-}
+    items.consumeItem(parseInt(req.params.ID)).then((resp) => {
+        res.send(resp);
+    });
+};

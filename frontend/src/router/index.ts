@@ -20,13 +20,13 @@ const router = createRouter({
         {
             name: "Locations",
             path: "/locations",
-            component: () => import("../views/Locations.vue")
+            component: () => import("../views/Locations.vue"),
         },
         {
-            name: 'Shopping List',
-            path: '/shopping-list',
-            component: () => import('../views/ShoppingList.vue')
-        }
+            name: "Shopping List",
+            path: "/shopping-list",
+            component: () => import("../views/ShoppingList.vue"),
+        },
     ],
     history: createWebHashHistory(),
 });

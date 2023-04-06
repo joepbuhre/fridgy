@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import express, { Request, Response, Router } from "express";
 import { config } from "dotenv";
-import cors from 'cors'
+import cors from "cors";
 import items from "./routes/items";
 import locations from "./routes/locations";
 import { logger } from "./utils/logger";
@@ -15,17 +15,17 @@ const prisma = new PrismaClient();
 
 const app = express();
 
-const router = Router()
+const router = Router();
 
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 
-router.use('/items', items)
-router.use('/locations', locations)
+router.use("/items", items);
+router.use("/locations", locations);
 
-app.use('/api', router)
+app.use("/api", router);
 
 app.listen(process.env.BACKEND_PORT, async () => {
-    await init()
-    logger.info(`Listening on ${process.env.BACKEND_PORT} 🚀`)
+    await init();
+    logger.info(`Listening on ${process.env.BACKEND_PORT} 🚀`);
 });

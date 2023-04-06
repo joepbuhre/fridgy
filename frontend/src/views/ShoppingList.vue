@@ -10,12 +10,15 @@
         <label class="flex gap-5 my-5" :for="it.ID.toString()">
             <span class="w-1/3">{{ it.EAN }}</span>
             <span class="w-1/3">{{ it.ProductName }}</span>
-            <span class="w-1/3"><input v-model="it.InBasket" :id="it.ID.toString()" type="checkbox" /></span>
+            <span class="w-1/3"
+                ><input
+                    v-model="it.InBasket"
+                    :id="it.ID.toString()"
+                    type="checkbox"
+            /></span>
         </label>
     </div>
-    <TheButton @click="saveShopping">
-        Save Shopping List
-    </TheButton>
+    <TheButton @click="saveShopping"> Save Shopping List </TheButton>
 </template>
 
 <script setup lang="ts">
@@ -24,38 +27,39 @@ import { computed, onMounted, ref } from "vue";
 import { api } from "../utils/api";
 import TheButton from "../components/TheButton.vue";
 
-const list = ref<(Items & {InBasket: boolean})[]>([]);
-
+const list = ref<(Items & { InBasket: boolean })[]>([]);
 
 const getShoppingList = () => {
     api.get("/items/shopping-list").then((res) => {
         list.value = res.data.map((el: Items) => ({
             ...el,
-            InBasket: false
+            InBasket: false,
         }));
     });
-}
+};
 
 onMounted(() => {
-    getShoppingList()
+    getShoppingList();
 });
 
 const saveShopping = () => {
     Promise.all(
         list.value
-        .filter(li => {
-            return li.InBasket
-        })
-        .map(li => {
-            api.put('/items', list.value.map(el => ({
-                ...li,
-                Reorder: false,
-                Inventory: []
-            })))
-        })
-    ).then(res => {
-        getShoppingList()
-    })
-}
-
+            .filter((li) => {
+                return li.InBasket;
+            })
+            .map((li) => {
+                api.put(
+                    "/items",
+                    list.value.map((el) => ({
+                        ...li,
+                        Reorder: false,
+                        Inventory: [],
+                    }))
+                );
+            })
+    ).then((res) => {
+        getShoppingList();
+    });
+};
 </script>
