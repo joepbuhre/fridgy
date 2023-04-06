@@ -1,11 +1,7 @@
-<template>
-    
-</template>
+<template></template>
 
 <script setup lang="ts">
-
 const props = defineProps<{
-    ean: string
-}>()
-
+    ean: string;
+}>();
 </script>

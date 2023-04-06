@@ -7,6 +7,7 @@ export default defineConfig({
     build: {
         outDir: "../dist/frontend",
     },
+    envDir: '../',
     server: {
         proxy: {
             "/api": {

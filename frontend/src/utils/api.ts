@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuthRedirect } from "./helpers";
 
 const api = axios.create({
     baseURL: "/api",
@@ -13,7 +14,11 @@ api.interceptors.response.use(
         return res;
     },
     (err) => {
-        alert("Je bent mogelijk niet meer ingelogd. Controleer dit");
+        if (import.meta.env.DEV) {
+            return err;
+        } else {
+            window.location.href = getAuthRedirect();
+        }
     }
 );
 

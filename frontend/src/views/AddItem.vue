@@ -199,7 +199,9 @@ const prepareItem = async (): Promise<void> => {
             it.tht === item.value.tht &&
             it.location === item.value.location
         ) {
-            it.count = (parseInt(it.count) + parseInt(item.value.count)).toString();
+            it.count = (
+                parseInt(it.count) + parseInt(item.value.count)
+            ).toString();
             found = true;
         }
     }
@@ -212,14 +214,16 @@ const prepareItem = async (): Promise<void> => {
 
     if (found === false) {
         const foodfact: Product | undefined = (
-            await wff.get(`/product/${item.value.ean}.json`).catch(err => undefined)
+            await wff
+                .get(`/product/${item.value.ean}.json`)
+                .catch((err) => undefined)
         )?.data?.product;
 
         if (foodfact === undefined) {
             // Product is unrecognized, ask for information
             moreInfo.value = true;
         } else {
-            item.value.productName = getProductName(foodfact)
+            item.value.productName = getProductName(foodfact);
             addItem();
         }
     }

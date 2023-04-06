@@ -8,6 +8,11 @@ const router = createRouter({
             component: () => import("../views/HomeView.vue"),
         },
         {
+            name: "Items",
+            path: "/items",
+            component: () => import("../views/ItemOverviewView.vue")
+        },
+        {
             name: "Item",
             path: "/item/:EAN",
             component: () => import("../views/ItemView.vue"),
@@ -20,8 +25,13 @@ const router = createRouter({
         {
             name: "Locations",
             path: "/locations",
-            component: () => import("../views/Locations.vue")
-        }
+            component: () => import("../views/Locations.vue"),
+        },
+        {
+            name: "Shopping List",
+            path: "/shopping-list",
+            component: () => import("../views/ShoppingList.vue"),
+        },
     ],
     history: createWebHashHistory(),
 });

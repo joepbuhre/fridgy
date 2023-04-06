@@ -1,18 +1,35 @@
 import { Router, Request, Response } from "express";
-import { createItem, deleteItem, getAllItem, getItem, updateItem } from "../controllers/items";
-const items = Router()
+import {
+    createItem,
+    deleteItem,
+    getAllItem,
+    getItem,
+    getShoppingList,
+    updateItem,
+    consumeItem,
+    getAllItemInventory,
+    updateItemInventory,
+} from "../controllers/items";
+const items = Router();
 
 // router.use('/items', items)
 
+items.get("/inventory", getAllItemInventory);
+
 items.get('/', getAllItem)
 
-items.put('/', updateItem)
+items.put("/", updateItem);
 
-items.get('/:EAN', getItem)
+items.put("/inventory", updateItemInventory);
 
-items.delete('/:ID', deleteItem)
+items.get("/shopping-list", getShoppingList);
 
-items.post('/create', createItem)
+items.get("/:EAN", getItem);
 
+items.delete("/:ID", deleteItem);
 
-export default items
+items.post("/create", createItem);
+
+items.post("/consume/:ID", consumeItem);
+
+export default items;
