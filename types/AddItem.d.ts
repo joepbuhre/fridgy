@@ -1,6 +1,6 @@
 import { Product } from "./FoodProduct";
-import { Items, ItemsInventory } from "@prisma/client";
-import type { Locations } from "@prisma/client";
+import { Item, ItemInventory } from "@prisma/client";
+import type { Location } from "@prisma/client";
 
 
 export interface AddItemProduct {
@@ -13,14 +13,14 @@ export interface AddItemProduct {
     productName?: string
 }
 
-interface ItemsInventoryDeep extends ItemsInventory  {
-    Location?: Locations,
+interface ItemInventoryDeep extends ItemInventory  {
+    Location?: Location,
 }
-interface ItemsInventoryDeepOld extends ItemsInventory  {
-    Location?: Locations,
-    Item: Items
+interface ItemInventoryDeepOld extends ItemInventory  {
+    Location?: Location,
+    Item: Item
 }
 
-interface ItemsDeep extends Items {
-    Inventory: ItemsInventoryDeep[]
+interface ItemDeep extends Item {
+    Inventory: ItemInventoryDeep[]
 }

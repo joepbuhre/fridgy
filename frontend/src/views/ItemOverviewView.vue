@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Items } from '.prisma/client';
+import type { Item } from '.prisma/client';
 import { api } from '../utils/api';
 import { computed, onMounted, ref } from 'vue';
 import ThePopup from '../components/ThePopup.vue';
@@ -41,8 +41,6 @@ import { raw } from '../utils/helpers';
 import ItemEditModal from '../components/ItemEditModal.vue';
 import InputGroup from '../components/InputGroup.vue';
 
-const items = ref<Items[]>([])
-const editItem = ref<Items | null>(null)
 const search = ref<string>('')
 
 const visibleItems = computed(() => {
@@ -82,6 +80,8 @@ const visibleItems = computed(() => {
             return 0;
         });
 });
+const items = ref<Item[]>([])
+const editItem = ref<Item | null>(null)
 
 
 const getItems = () => {

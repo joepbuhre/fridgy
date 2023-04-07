@@ -26,18 +26,18 @@
 </template>
 
 <script setup lang="ts">
-import { Locations } from "@prisma/client";
+import { Location } from "@prisma/client";
 import { onMounted, ref } from "vue";
 import InputGroup from "../components/InputGroup.vue";
 import TheButton from "../components/TheButton.vue";
 import { api } from "../utils/api";
 
-const addLocations = ref<Locations>({
+const addLocations = ref<Location>({
     ID: 0,
     Name: "",
 });
 
-const locations = ref<Locations[]>([]);
+const locations = ref<Location[]>([]);
 
 onMounted(() => {
     getLocations();

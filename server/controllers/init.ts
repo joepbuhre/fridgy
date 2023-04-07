@@ -1,4 +1,4 @@
-import { ItemsInventory, PrismaClient } from "@prisma/client";
+import { ItemInventory, PrismaClient } from "@prisma/client";
 import { logger } from "../utils/logger";
 
 const prisma = new PrismaClient();

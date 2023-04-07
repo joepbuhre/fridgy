@@ -4,7 +4,7 @@ import { logger } from "../utils/logger";
 const prisma = new PrismaClient();
 
 export const consumeItem = async (ItemInventoryID: number) => {
-    const count = await prisma.itemsInventory.findFirst({
+    const count = await prisma.itemInventory.findFirst({
         where: {
             ID: ItemInventoryID,
         },
@@ -20,13 +20,13 @@ export const consumeItem = async (ItemInventoryID: number) => {
 
     // Update stock or delete if 0
     if (count.Stock <= 1) {
-        await prisma.itemsInventory.delete({
+        await prisma.itemInventory.delete({
             where: {
                 ID: ItemInventoryID,
             },
         });
     } else {
-        await prisma.itemsInventory.update({
+        await prisma.itemInventory.update({
             data: {
                 Stock: count.Stock - 1,
             },
@@ -36,7 +36,7 @@ export const consumeItem = async (ItemInventoryID: number) => {
         });
     }
 
-    return await prisma.items.findFirst({
+    return await prisma.item.findFirst({
         where: { EAN: count.EAN },
         include: {
             Inventory: {
