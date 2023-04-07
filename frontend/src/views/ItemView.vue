@@ -68,20 +68,20 @@
 </template>
 
 <script setup lang="ts">
-import { Locations } from ".prisma/client";
+import { Location } from ".prisma/client";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ItemsDeep, ItemsInventoryDeep } from "../../../types/AddItem";
+import { ItemDeep, ItemInventoryDeep } from "../../../types/AddItem";
 import type { Product } from "../../../types/FoodProduct";
 import InputGroup from "../components/InputGroup.vue";
 import TheButton from "../components/TheButton.vue";
 import { api } from "../utils/api";
 import { Trash, Cookie } from "lucide-vue-next";
 
-const items = ref<ItemsDeep | undefined>(undefined);
+const items = ref<ItemDeep | undefined>(undefined);
 
 // Get locations
-const locations = ref<Locations[] | undefined>(undefined);
+const locations = ref<Location[] | undefined>(undefined);
 const locationOptions = computed(() =>
     locations.value?.map(
         (el) => ({ value: el.ID.toString(), name: el.Name } || [])
@@ -115,7 +115,7 @@ const deleteItem = (it: number) => {
     }
 };
 
-const updateItem = (it: ItemsInventoryDeep) => {
+const updateItem = (it: ItemInventoryDeep) => {
     api.put("/items/inventory", it).then((res) => {
         router.push("/");
     });

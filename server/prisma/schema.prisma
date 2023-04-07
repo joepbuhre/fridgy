@@ -10,27 +10,27 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Locations {
+model Location {
     ID            Int              @id @default(autoincrement())
     Name          String           @unique
-    LocationItems ItemsInventory[]
+    LocationItems ItemInventory[]
 }
 
-model ItemsInventory {
+model ItemInventory {
     ID         Int       @id @default(autoincrement())
     EAN        String
     Stock      Int
     Expiry     DateTime
-    Location   Locations @relation(fields: [LocationID], references: [ID])
+    Location   Location @relation(fields: [LocationID], references: [ID])
     LocationID Int
-    Item       Items     @relation(fields: [ItemId], references: [ID])
+    Item       Item     @relation(fields: [ItemId], references: [ID])
     ItemId     Int
 }
 
-model Items {
+model Item {
     ID          Int              @id @default(autoincrement())
     EAN         String           @unique
-    Inventory   ItemsInventory[]
+    Inventory   ItemInventory[]
     ProductName String?
     Merk        String?
     Reorder     Boolean          @default(false)

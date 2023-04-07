@@ -1,17 +1,17 @@
-import { ItemsInventory, PrismaClient } from "@prisma/client";
+import { ItemInventory, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { logger } from "../utils/logger";
 
 const prisma = new PrismaClient();
 
 export const getAllLocations = (req: Request, res: Response) => {
-    prisma.locations.findMany().then((db) => {
+    prisma.location.findMany().then((db) => {
         res.send(db);
     });
 };
 
 export const createLocation = (req: Request, res: Response) => {
-    prisma.locations
+    prisma.location
         .upsert({
             create: {
                 Name: req.body.Name,
