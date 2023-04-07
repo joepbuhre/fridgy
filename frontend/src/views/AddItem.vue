@@ -166,7 +166,7 @@ import InputGroup from "../components/InputGroup.vue";
 import TheButton from "../components/TheButton.vue";
 import TheScanner from "../components/TheScanner.vue";
 import ThePopup from "../components/ThePopup.vue";
-import type { Locations } from ".prisma/client";
+import type { Location } from ".prisma/client";
 import { useRouter } from "vue-router";
 
 const test = ref<string>("");
@@ -271,7 +271,7 @@ const eanFound = (ean: string) => {
 };
 
 // Get / Set locations
-const locations = ref<Locations[]>([]);
+const locations = ref<Location[]>([]);
 const selectedLocation = ref<string>("1");
 onMounted(() => {
     api.get("/locations").then((res) => {

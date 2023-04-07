@@ -1,10 +1,10 @@
-import { ItemsInventory, PrismaClient } from "@prisma/client";
+import { ItemInventory, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import {
     AddItemProduct,
-    ItemsDeep,
-    ItemsInventoryDeep,
-    ItemsInventoryDeepOld,
+    ItemDeep,
+    ItemInventoryDeep,
+    ItemInventoryDeepOld,
 } from "../../types/AddItem";
 import { logger } from "../utils/logger";
 import * as items from "../models/items";
@@ -12,7 +12,7 @@ import * as items from "../models/items";
 const prisma = new PrismaClient();
 
 export const getAllItem = (req: Request, res: Response) => {
-    prisma.items
+    prisma.item
         .findMany({})
         .then((db) => {
             res.send(db);
@@ -20,7 +20,7 @@ export const getAllItem = (req: Request, res: Response) => {
 };
 
 export const getAllItemInventory = (req: Request, res: Response) => {
-    prisma.items
+    prisma.item
         .findMany({
             include: {
                 Inventory: {
@@ -36,7 +36,7 @@ export const getAllItemInventory = (req: Request, res: Response) => {
 };
 
 export const getItem = (req: Request, res: Response) => {
-    prisma.items
+    prisma.item
         .findFirst({
             where: { EAN: req.params.EAN },
             include: {
@@ -58,7 +58,7 @@ export const getItem = (req: Request, res: Response) => {
 };
 
 export const deleteItem = (req: Request, res: Response) => {
-    prisma.itemsInventory
+    prisma.itemInventory
         .delete({
             where: {
                 ID: parseInt(req.params.ID),
@@ -84,7 +84,7 @@ export const createItem = (req: Request, res: Response) => {
 
     Promise.all(
         body.map((ii) =>
-            prisma.itemsInventory.create({
+            prisma.itemInventory.create({
                 data: {
                     EAN: ii.ean,
                     Expiry: new Date(ii.tht),
@@ -120,10 +120,10 @@ export const createItem = (req: Request, res: Response) => {
 };
 
 export const updateItemInventory = (req: Request, res: Response) => {
-    let body: ItemsDeep = req.body;
+    let body: ItemDeep = req.body;
 
     Promise.all([
-        prisma.items.update({
+        prisma.item.update({
             data: {
                 EAN: body.EAN,
                 ProductName: body.ProductName,
@@ -134,7 +134,7 @@ export const updateItemInventory = (req: Request, res: Response) => {
             },
         }),
         ...body.Inventory.map((el) => {
-            return prisma.itemsInventory.upsert({
+            return prisma.itemInventory.upsert({
                 create: {
                     Stock: el.Stock,
                     LocationID: el.LocationID,
@@ -165,10 +165,10 @@ export const updateItemInventory = (req: Request, res: Response) => {
 };
 
 export const updateItem = (req: Request, res: Response) => {
-    let body: ItemsDeep = req.body;
+    let body: ItemDeep = req.body;
     console.log(req.body)
     Promise.all([
-        prisma.items.update({
+        prisma.item.update({
             data: {
                 EAN: body.EAN,
                 ProductName: body.ProductName,
@@ -191,7 +191,7 @@ export const updateItem = (req: Request, res: Response) => {
 };
 
 export const getShoppingList = (req: Request, res: Response) => {
-    prisma.items
+    prisma.item
         .findMany({
             where: {
                 Reorder: true,

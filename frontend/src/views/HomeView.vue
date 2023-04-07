@@ -68,7 +68,7 @@ import { computed, onMounted, ref } from "vue";
 import { api, wff } from "../utils/api";
 import type { Product } from "../../../types/FoodProduct";
 import type { ProductResponse } from "../../../types/FoodResponse";
-import type { ItemsDeep } from "../../../types/AddItem";
+import type { ItemDeep } from "../../../types/AddItem";
 import axios from "axios";
 import { getProductName, prettydelta, rawDelta } from "../utils/helpers";
 import TheButton from "../components/TheButton.vue";
@@ -79,7 +79,7 @@ import TheLabel from "../components/TheLabel.vue";
 const search = ref<string>("");
 const visibleItems = computed(() => {
     return data.value
-        ?.filter((item: ItemsDeep) => {
+        ?.filter((item: ItemDeep) => {
             return (
                 item.EAN.search(search.value) > -1 ||
                 (item.ProductName || "")
@@ -115,7 +115,7 @@ const visibleItems = computed(() => {
         });
 });
 
-const data = ref<ItemsDeep[] | null>(null);
+const data = ref<ItemDeep[] | null>(null);
 const ff = ref<Product | null | undefined>(null);
 const resultZX = ref<any>(null);
 

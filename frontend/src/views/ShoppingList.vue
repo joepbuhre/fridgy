@@ -22,16 +22,16 @@
 </template>
 
 <script setup lang="ts">
-import { Items } from "@prisma/client";
+import { Item } from "@prisma/client";
 import { computed, onMounted, ref } from "vue";
 import { api } from "../utils/api";
 import TheButton from "../components/TheButton.vue";
 
-const list = ref<(Items & { InBasket: boolean })[]>([]);
+const list = ref<(Item & { InBasket: boolean })[]>([]);
 
 const getShoppingList = () => {
     api.get("/items/shopping-list").then((res) => {
-        list.value = res.data.map((el: Items) => ({
+        list.value = res.data.map((el: Item) => ({
             ...el,
             InBasket: false,
         }));
