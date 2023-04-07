@@ -35,6 +35,7 @@ import { api } from "../utils/api";
 const addLocations = ref<Location>({
     ID: 0,
     Name: "",
+    HasTht: true
 });
 
 const locations = ref<Location[]>([]);
