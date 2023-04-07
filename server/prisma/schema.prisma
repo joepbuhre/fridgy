@@ -14,6 +14,7 @@ model Location {
     ID            Int              @id @default(autoincrement())
     Name          String           @unique
     LocationItems ItemInventory[]
+    HasTht        Boolean          @default(true)
 }
 
 model ItemInventory {
@@ -34,4 +35,5 @@ model Item {
     ProductName String?
     Merk        String?
     Reorder     Boolean          @default(false)
+    HasBarcode  Boolean          @default(true)
 }

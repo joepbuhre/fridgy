@@ -8,6 +8,7 @@
         <InputGroup
             class="my-0"
             v-model="search"
+            :compact="true"
             name="Search"
             prettyname="search"
         />
@@ -31,7 +32,7 @@
                         <span
                             class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
                         >
-                            {{ item.Location }}
+                            {{ item.Location.map(el => el.Location?.Name).join(', ') }}
                         </span>
                     </div>
                     <div v-else>
@@ -42,7 +43,7 @@
                 </div>
                 <div
                     class="w-auto text-xs mt-2"
-                    v-if="!Number.isNaN(rawDelta(item.Expiry))"
+                    v-if="!Number.isNaN(rawDelta(item.Expiry)) && item.Location.map(loc => loc.Location?.HasTht || false).includes(true)"
                 >
                     <TheLabel
                         :color="{
@@ -97,9 +98,7 @@ const visibleItems = computed(() => {
                         it.Inventory.map((el) => new Date(el.Expiry).getTime())
                     )
                 ),
-                Location: it.Inventory.map((el) => el?.Location?.Name).join(
-                    ", "
-                ),
+                Location: it.Inventory,
             };
         })
         .sort((a, b) => {

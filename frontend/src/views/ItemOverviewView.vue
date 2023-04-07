@@ -29,6 +29,13 @@
             prettyname="Product Name"
             class="w-3/4 my-2"
         />
+        <InputGroup
+            v-model="editItem.HasBarcode"
+            type="checkbox"
+            name="HasBarcode"
+            prettyname="Has a Barcode"
+            class="w-3/4 my-2"
+        />
     </ThePopup>
 </template>
 
@@ -45,7 +52,7 @@ const search = ref<string>('')
 
 const visibleItems = computed(() => {
     return items.value
-        ?.filter((item: Items) => {
+        ?.filter((item: Item) => {
             return (
                 item.EAN.search(search.value) > -1 ||
                 (item.ProductName || "")

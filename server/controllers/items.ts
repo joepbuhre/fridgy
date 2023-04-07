@@ -140,7 +140,7 @@ export const updateItemInventory = (req: Request, res: Response) => {
                     LocationID: el.LocationID,
                     Expiry: new Date(el.Expiry),
                     EAN: el.EAN,
-                    ItemId: el.ItemId,
+                    ItemId: el.ItemId
                 },
                 update: {
                     Stock: el.Stock,
@@ -166,13 +166,14 @@ export const updateItemInventory = (req: Request, res: Response) => {
 
 export const updateItem = (req: Request, res: Response) => {
     let body: ItemDeep = req.body;
-    console.log(req.body)
+
     Promise.all([
         prisma.item.update({
             data: {
                 EAN: body.EAN,
                 ProductName: body.ProductName,
                 Reorder: Boolean(body.Reorder),
+                HasBarcode: body.HasBarcode
             },
             where: {
                 ID: body.ID,
@@ -213,3 +214,19 @@ export const consumeItem = (req: Request, res: Response) => {
         res.send(resp);
     });
 };
+
+export const getWithoutBarcode = (req: Request, res: Response) => {
+    prisma.item.findMany({
+        where: {
+            HasBarcode: false
+        }
+    })
+    .then(resp => {
+        logger.debug('Got all items without barcodes')
+        res.send(resp)
+    })
+    .catch(err => {
+        logger.error(err)
+        res.status(500).send(err)
+    })
+}

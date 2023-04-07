@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "npm run dev:frontend && npm run dev:server",
-    "pm": "dotenv -e .env -- npx prisma migrate dev",
+    "pm": "dotenv -e .env -- npx prisma migrate dev && prisma generate",
     "dev:frontend": "vite ./frontend",
     "dev:server": "chcp 65001 && nodemon ./server/index.ts | pino-pretty",
     "build": "npm i && npm run build:frontend && npm run build:server",

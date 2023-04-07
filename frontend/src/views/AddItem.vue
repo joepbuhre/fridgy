@@ -39,13 +39,14 @@
     </div>
 
     <div class="flex gap-3">
-        <button @click="prepareItem" class="bg-blue-500 text-white w-2/5">
+        <button @click="prepareItem" class="bg-blue-500 text-white w-1/4">
             Add
         </button>
-        <button @click="finalize" class="bg-blue-500 text-white w-2/5">
+        <button @click="finalize" class="bg-blue-500 text-white w-1/4">
             Finalize
         </button>
-        <TheButton @click="edit(-1)" class="w-1/5">Scan</TheButton>
+        <TheButton @click="edit(-1)" class="w-1/4">Scan</TheButton>
+        <TheButton @click="getBtnItems" class="w-1/4">Knop</TheButton>
     </div>
     <div
         v-for="(item, i) in items"
@@ -146,7 +147,14 @@
         </div>
     </div>
     <ThePopup v-if="popup" @confirm="onConfirm" @cancel="popup = false" />
+    <ThePopup v-if="btnItems.length > 0" @cancel="btnItems = []">
+        <div class="my-5">
+            <div v-for="btn in btnItems" @click="addBtnItem(btn)" class="w-1/2 h-[50px] border border-solid border-gray-300 flex justify-center items-center">
+                {{ btn.ProductName }}
+            </div>
 
+        </div>
+    </ThePopup>
     <ThePopup v-if="moreInfo" @confirm="addItem" @cancel="moreInfo = false">
         <InputGroup
             v-model="item.productName"
@@ -166,7 +174,7 @@ import InputGroup from "../components/InputGroup.vue";
 import TheButton from "../components/TheButton.vue";
 import TheScanner from "../components/TheScanner.vue";
 import ThePopup from "../components/ThePopup.vue";
-import type { Location } from ".prisma/client";
+import type { Item, Location } from ".prisma/client";
 import { useRouter } from "vue-router";
 
 const test = ref<string>("");
@@ -211,6 +219,14 @@ const prepareItem = async (): Promise<void> => {
     } else {
         item.value.tht = new Date().toJSON().slice(0, 10);
     }
+    
+    // Check if we already have this item
+    await api.get(`/items/${item.value.ean}`).then(res => { 
+        const it: Item = res.data
+        found = true;
+        item.value.productName = it?.ProductName || '';
+        addItem();
+    })
 
     if (found === false) {
         const foodfact: Product | undefined = (
@@ -269,6 +285,24 @@ const eanFound = (ean: string) => {
 
     prepareItem();
 };
+
+// Get Knop artikelen
+const btnItems = ref<Item[]>([]);
+const getBtnItems = () => {
+    api.get("/items/withoutBarcode")
+        .then((res) => {
+            btnItems.value = res.data;
+
+        })
+        .catch((err) => {
+            // TODO
+        });
+};
+
+const addBtnItem = (it: Item) => {
+    item.value.ean = it.EAN;
+    btnItems.value = []
+}
 
 // Get / Set locations
 const locations = ref<Location[]>([]);

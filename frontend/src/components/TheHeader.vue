@@ -1,7 +1,7 @@
 <template>
     <header
         ref="header"
-        class="px-5 flex justify-between items-center pt-3 sticky top-0 z-40 ease-linear duration-300"
+        class="px-5 flex justify-between items-center pt-3 sticky top-0 z-40 ease-linear duration-300 bg-white"
     >
         <router-link to="/"
             ><h1 class="font-bold text-2xl flex items-center">

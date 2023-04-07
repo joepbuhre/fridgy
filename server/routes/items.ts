@@ -9,6 +9,7 @@ import {
     consumeItem,
     getAllItemInventory,
     updateItemInventory,
+    getWithoutBarcode,
 } from "../controllers/items";
 const items = Router();
 
@@ -19,6 +20,8 @@ items.get("/inventory", getAllItemInventory);
 items.get('/', getAllItem)
 
 items.put("/", updateItem);
+
+items.get('/withoutBarcode', getWithoutBarcode);
 
 items.put("/inventory", updateItemInventory);
 
