@@ -26,7 +26,7 @@
             :checked="val"
             :type="props.type"
             :id="props.name"
-            :name="props.name"
+            :name="name"
             :placeholder="props.compact ? props.prettyname : props.prettyname"
             @change="emit('update:modelValue', ($event.target as any).checked)"
             class="border border-solid border-gray-500 rounded-sm outline-none px-2 py-1"
@@ -54,7 +54,7 @@ import { computed, InputHTMLAttributes } from "vue";
 
 const props = defineProps<{
     modelValue: any;
-    name: string;
+    name?: string;
     prettyname: string;
     type?: string;
     inputAttrs?: InputHTMLAttributes;
@@ -71,6 +71,14 @@ const val = computed(() => {
         return props.modelValue;
     }
 });
+
+const name = computed(() => {
+    if(props.name) {
+        return props.name
+    } else {
+        return props.prettyname.replace(' ', '_')
+    }
+})
 
 const emit = defineEmits<{
     (e: "update:modelValue", value: string): void;

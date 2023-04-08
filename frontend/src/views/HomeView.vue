@@ -122,7 +122,6 @@ const getItems = () => {
     api.get("/items/inventory").then((res) => {
         data.value = res.data;
     });
-    console.log(import.meta.env)
 };
 
 onMounted(getItems);

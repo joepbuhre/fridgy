@@ -26,8 +26,6 @@ const colorClass = computed(() => {
         color = "";
     }
 
-    console.log(props.color);
-
     switch (color) {
         case "red":
             return "border-red-700 text-red-700 bg-red-100";
