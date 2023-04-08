@@ -1,7 +1,8 @@
 <template>
     <h4 class="font-semibold text-2xl mt-2">{{ items?.ProductName }}</h4>
     <div v-if="items" class="">
-        <InputGroup v-model="items.ProductName" name="Name" prettyname="Name" />
+        <InputGroup v-model="items.ProductName" prettyname="Name" />
+        <InputGroup v-model="items.Merk" prettyname="Brand" />
         <InputGroup
             v-model="items.Reorder"
             name="Reorder"
