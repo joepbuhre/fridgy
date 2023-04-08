@@ -12,11 +12,9 @@ import * as items from "../models/items";
 const prisma = new PrismaClient();
 
 export const getAllItem = (req: Request, res: Response) => {
-    prisma.item
-        .findMany({})
-        .then((db) => {
-            res.send(db);
-        });
+    prisma.item.findMany({}).then((db) => {
+        res.send(db);
+    });
 };
 
 export const getAllItemInventory = (req: Request, res: Response) => {
@@ -82,33 +80,8 @@ export const createItem = (req: Request, res: Response) => {
         body = req.body;
     }
 
-    Promise.all(
-        body.map((ii) =>
-            prisma.itemInventory.create({
-                data: {
-                    EAN: ii.ean,
-                    Expiry: new Date(ii.tht),
-                    Stock: parseInt(ii.count),
-                    Location: {
-                        connect: {
-                            ID: parseInt(ii.location),
-                        },
-                    },
-                    Item: {
-                        connectOrCreate: {
-                            create: {
-                                EAN: ii.ean,
-                                ProductName: ii?.productName || null,
-                            },
-                            where: {
-                                EAN: ii.ean,
-                            },
-                        },
-                    },
-                },
-            })
-        )
-    )
+    items
+        .addItem(body)
         .then((resp) => {
             res.status(201).send(resp);
             logger.debug(`${body.length} item(s) succesfully created`);
@@ -116,6 +89,7 @@ export const createItem = (req: Request, res: Response) => {
         .catch((err) => {
             res.status(500).send(err);
             logger.error(err, "error has happened");
+            logger.debug(body)
         });
 };
 
@@ -140,7 +114,7 @@ export const updateItemInventory = (req: Request, res: Response) => {
                     LocationID: el.LocationID,
                     Expiry: new Date(el.Expiry),
                     EAN: el.EAN,
-                    ItemId: el.ItemId
+                    ItemId: el.ItemId,
                 },
                 update: {
                     Stock: el.Stock,
@@ -173,7 +147,7 @@ export const updateItem = (req: Request, res: Response) => {
                 EAN: body.EAN,
                 ProductName: body.ProductName,
                 Reorder: Boolean(body.Reorder),
-                HasBarcode: body.HasBarcode
+                HasBarcode: body.HasBarcode,
             },
             where: {
                 ID: body.ID,
@@ -216,17 +190,18 @@ export const consumeItem = (req: Request, res: Response) => {
 };
 
 export const getWithoutBarcode = (req: Request, res: Response) => {
-    prisma.item.findMany({
-        where: {
-            HasBarcode: false
-        }
-    })
-    .then(resp => {
-        logger.debug('Got all items without barcodes')
-        res.send(resp)
-    })
-    .catch(err => {
-        logger.error(err)
-        res.status(500).send(err)
-    })
-}
+    prisma.item
+        .findMany({
+            where: {
+                HasBarcode: false,
+            },
+        })
+        .then((resp) => {
+            logger.debug("Got all items without barcodes");
+            res.send(resp);
+        })
+        .catch((err) => {
+            logger.error(err);
+            res.status(500).send(err);
+        });
+};
