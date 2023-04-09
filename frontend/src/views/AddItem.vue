@@ -4,7 +4,8 @@
         v-model="item.ean"
         name="ean"
         prettyname="EAN Code"
-        type="phone"
+        type="text"
+        inputmode="numeric"
         :compact="true"
     />
     <div class="flex gap-4">

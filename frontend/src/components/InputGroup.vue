@@ -35,6 +35,7 @@
             v-else
             :value="val"
             :type="props.type"
+            :inputmode="inputMode"
             :id="props.name"
             :name="props.name"
             :placeholder="props.compact ? props.prettyname : props.prettyname"
@@ -50,17 +51,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, InputHTMLAttributes } from "vue";
+import { computed, HTMLAttributes, InputHTMLAttributes } from "vue";
 
 const props = defineProps<{
     modelValue: any;
     name: string;
     prettyname: string;
     type?: string;
+    inputmode?: HTMLAttributes['inputmode'],
     inputAttrs?: InputHTMLAttributes;
     compact?: boolean;
     options?: { value: string; name: string }[];
 }>();
+
+const inputMode = computed(() => {
+    if(props.inputmode) {
+        return props.inputmode
+    } else {
+        return 'text'
+    }
+})
 
 const val = computed(() => {
     if (props.type === "date") {
