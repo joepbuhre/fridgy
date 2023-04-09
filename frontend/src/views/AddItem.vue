@@ -1,13 +1,20 @@
 <template>
     <h4>Voeg toe</h4>
-    <InputGroup
-        v-model="item.ean"
-        name="ean"
-        prettyname="EAN Code"
-        type="text"
-        inputmode="numeric"
-        :compact="true"
-    />
+    <div class="flex items-center">
+        <InputGroup
+            v-model="item.ean"
+            name="ean"
+            prettyname="EAN Code"
+            type="text"
+            :inputmode="keyboardInput"
+            class="w-full"
+            :compact="true"
+        />
+        <button class="border border-gray-500 py-1 px-2 border-l-0" @click="switchKeyboard">
+            <CaseSensitive v-if="keyboardInput === 'tel'" />
+            <Binary v-else />
+        </button>
+    </div>
     <div class="flex gap-4">
         <InputGroup
             class="w-2/5"
@@ -166,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, toRaw } from "vue";
+import { HTMLAttributes, computed, onMounted, ref, toRaw } from "vue";
 import { api, wff } from "../utils/api";
 import type { AddItemProduct } from "../../../types/AddItem";
 import type { Product } from "../../../types/FoodProduct";
@@ -177,12 +184,24 @@ import TheScanner from "../components/TheScanner.vue";
 import ThePopup from "../components/ThePopup.vue";
 import type { Item, Location } from ".prisma/client";
 import { useRouter } from "vue-router";
+import { CaseSensitive } from 'lucide-vue-next'
+import { Binary } from "lucide-vue-next";
 
 const test = ref<string>("");
 
 const result = ref<any>([]);
 const editModal = ref(false);
 const popup = ref(false);
+
+// Set Keyboard input
+const keyboardInput = ref<HTMLAttributes['inputmode']>('tel')
+const switchKeyboard = () => {
+    if(keyboardInput.value === 'tel') {
+        keyboardInput.value = 'text'
+    } else {
+        keyboardInput.value = 'tel'
+    }
+}
 
 // Define router
 const router = useRouter();
