@@ -60,7 +60,7 @@ export const addItem = (additems: AddItemProduct[]) => {
             prisma.itemInventory.create({
                 data: {
                     EAN: ii.ean,
-                    Expiry: new Date(ii.tht),
+                    Expiry: (ii.tht ? new Date(ii.tht) : null),
                     Stock: parseInt(ii.count),
                     Location: {
                         connect: {

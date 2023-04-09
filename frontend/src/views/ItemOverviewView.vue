@@ -60,21 +60,6 @@ const visibleItems = computed(() => {
                     .search(search.value.toLowerCase()) > -1
             );
         })
-        // .map((it) => {
-        //     return {
-        //         ...it,
-        //         Stock: it.Inventory.reduce((a, b) => a + b.Stock, 0),
-        //         Expiry: new Date(
-        //             Math.min.apply(
-        //                 0,
-        //                 it.Inventory.map((el) => new Date(el.Expiry).getTime())
-        //             )
-        //         ),
-        //         Location: it.Inventory.map((el) => el?.Location?.Name).join(
-        //             ", "
-        //         ),
-        //     };
-        // })
         .sort((a, b) => {
             if (a.ProductName && b.ProductName) {
                 if (a.ProductName < b.ProductName) {

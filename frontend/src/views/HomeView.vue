@@ -95,7 +95,8 @@ const visibleItems = computed(() => {
                 Expiry: new Date(
                     Math.min.apply(
                         0,
-                        it.Inventory.map((el) => new Date(el.Expiry).getTime())
+                        // @ts-ignore
+                        it.Inventory.filter((el) => el.Expiry !== null).map((el) => new Date(el.Expiry).getTime())
                     )
                 ),
                 Location: it.Inventory,

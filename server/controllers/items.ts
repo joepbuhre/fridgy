@@ -8,6 +8,7 @@ import {
 } from "../../types/AddItem";
 import { logger } from "../utils/logger";
 import * as items from "../models/items";
+import { NotFoundError, PrismaClientKnownRequestError } from "@prisma/client/runtime";
 
 const prisma = new PrismaClient();
 
@@ -35,7 +36,7 @@ export const getAllItemInventory = (req: Request, res: Response) => {
 
 export const getItem = (req: Request, res: Response) => {
     prisma.item
-        .findFirst({
+        .findFirstOrThrow({
             where: { EAN: req.params.EAN },
             include: {
                 Inventory: {
@@ -49,9 +50,13 @@ export const getItem = (req: Request, res: Response) => {
             logger.debug("fetched item " + req.params.EAN);
             res.send(resp);
         })
-        .catch((err) => {
+        .catch((err: PrismaClientKnownRequestError  ) => {
+            if(err.code === 'P2025') {
+                res.status(404).send('no item found')
+            } else {
+                res.status(500).send(err);
+            }
             logger.error(err);
-            res.status(500).send(err);
         });
 };
 
@@ -112,14 +117,14 @@ export const updateItemInventory = (req: Request, res: Response) => {
                 create: {
                     Stock: el.Stock,
                     LocationID: el.LocationID,
-                    Expiry: new Date(el.Expiry),
+                    Expiry: (el.Expiry ? new Date(el.Expiry) : null),
                     EAN: el.EAN,
                     ItemId: el.ItemId,
                 },
                 update: {
                     Stock: el.Stock,
                     LocationID: el.LocationID,
-                    Expiry: new Date(el.Expiry),
+                    Expiry: (el.Expiry ? new Date(el.Expiry) : null),
                 },
                 where: {
                     ID: el.ID,

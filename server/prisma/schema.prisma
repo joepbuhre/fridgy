@@ -21,7 +21,7 @@ model ItemInventory {
     ID         Int       @id @default(autoincrement())
     EAN        String
     Stock      Int
-    Expiry     DateTime
+    Expiry     DateTime?
     Location   Location @relation(fields: [LocationID], references: [ID])
     LocationID Int
     Item       Item     @relation(fields: [ItemId], references: [ID])

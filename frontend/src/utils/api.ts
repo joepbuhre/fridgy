@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { getAuthRedirect } from "./helpers";
 
 const api = axios.create({
@@ -13,12 +13,27 @@ api.interceptors.response.use(
     (res) => {
         return res;
     },
-    (err) => {
-        if (import.meta.env.DEV) {
-            return err;
-        } else {
-            window.location.href = getAuthRedirect();
+    (err: AxiosError) => {
+        const status = err.response?.status
+
+        if(status === undefined) {
+            return Promise.reject(err)
         }
+
+        // Logout if unauthorized
+        if( status === 403 || status === 401 ) {
+            if (import.meta.env.DEV) {
+                return Promise.reject(err);
+            } else {
+                window.location.href = getAuthRedirect();
+            }
+        }
+
+        // Return to client
+        return Promise.reject(err)
+
+
+
     }
 );
 

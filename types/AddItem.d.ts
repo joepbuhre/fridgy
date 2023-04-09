@@ -6,7 +6,7 @@ import type { Location } from "@prisma/client";
 export interface AddItemProduct {
     ean: string,
     count: string,
-    tht: string,
+    tht: string | null,
     location: string,
     foodfacts?: Product
     id?: string

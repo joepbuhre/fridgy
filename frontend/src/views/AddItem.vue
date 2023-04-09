@@ -217,7 +217,7 @@ const prepareItem = async (): Promise<void> => {
     if (item.value.tht) {
         console.log(prettydelta(item.value.tht));
     } else {
-        item.value.tht = new Date().toJSON().slice(0, 10);
+        item.value.tht = null
     }
     
     // Check if we already have this item
@@ -226,6 +226,8 @@ const prepareItem = async (): Promise<void> => {
         found = true;
         item.value.productName = it?.ProductName || '';
         addItem();
+    }).catch(err => {
+        found = false;
     })
 
     if (found === false) {
@@ -279,7 +281,7 @@ const edit = (item: number) => {
 const eanFound = (ean: string) => {
     item.value.count = "1";
     item.value.ean = ean;
-    item.value.tht = new Date().toJSON().slice(0, 10);
+    item.value.tht = null;
 
     editModal.value = false;
 
