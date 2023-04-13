@@ -6,8 +6,9 @@
             v-if="props.compact === false"
             >{{ props.prettyname }}</label
         >
-        <select
-            v-if="props.options"
+        <div v-if="props.options" class="select-wrapper">
+            <select
+            
             :value="modelValue"
             class="border border-solid border-gray-500 rounded-sm outline-none px-2 py-1 w-full"
             @input="
@@ -21,6 +22,7 @@
                 {{ opt.name }}
             </option>
         </select>
+        </div>
         <input
             v-else-if="props.type === 'checkbox'"
             :checked="val"
@@ -86,3 +88,29 @@ const emit = defineEmits<{
     (e: "update:modelValue", value: string): void;
 }>();
 </script>
+
+<style>
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: inherit;
+    border: inherit;
+    border-color: initial;
+    border-radius: initial;
+}
+.select-wrapper {
+    position: relative;
+    display: inline-block;
+}
+.select-wrapper:after {
+    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    color: gray;
+    background-color: white;
+    right: 5px;
+    height: calc(100% - 2px);
+    padding: 7px 0px 0px 8px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    position: absolute;
+}
+</style>

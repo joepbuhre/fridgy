@@ -1,9 +1,10 @@
 <template>
     <div>
-        <div class="md:grid-cols-4 grid-cols-2 grid gap-10 pt-4">
+        <div class="flex gap-3 pt-4">
             <router-link :to="{ name: 'Add Item' }">
                 <TheButton>Add item</TheButton>
             </router-link>
+            <TheButton @click="openConsumePopup = true">Consume Item</TheButton>
         </div>
         <InputGroup
             class="my-0"
@@ -32,7 +33,11 @@
                         <span
                             class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
                         >
-                            {{ item.Location.map(el => el.Location?.Name).join(', ') }}
+                            {{
+                                item.Location.map(
+                                    (el) => el.Location?.Name
+                                ).join(", ")
+                            }}
                         </span>
                     </div>
                     <div v-else>
@@ -43,7 +48,12 @@
                 </div>
                 <div
                     class="w-auto text-xs mt-2"
-                    v-if="!Number.isNaN(rawDelta(item.Expiry)) && item.Location.map(loc => loc.Location?.HasTht || false).includes(true)"
+                    v-if="
+                        !Number.isNaN(rawDelta(item.Expiry)) &&
+                        item.Location.map(
+                            (loc) => loc.Location?.HasTht || false
+                        ).includes(true)
+                    "
                 >
                     <TheLabel
                         :color="{
@@ -61,6 +71,44 @@
                 </div>
             </div>
         </router-link>
+        <ThePopup 
+            v-if="openConsumePopup"
+            @confirm="openConsumePopup = false; "
+            @cancel="openConsumePopup = false"
+            >
+            <div v-if="consumeItem !== null">
+                <h3>{{ consumeItem?.ProductName }}</h3>
+                <div v-for="st in consumeItem?.Inventory" class="flex gap-3">
+                    <InputGroup
+                        v-if="st.Location"
+                        class="w-2/5"
+                        v-model="st.Location.Name"
+                        name="Location"
+                        prettyname="Location"
+                        :compact="true"
+                    />
+                    <InputGroup
+                        class="w-2/5"
+                        name="Date"
+                        prettyname="Date"
+                        :compact="true"
+                        v-model="st.Expiry"
+                        type="date"
+                    />
+                    <InputGroup
+                        class="w-1/5"
+                        name="Stock"
+                        prettyname="Stock"
+                        :compact="true"
+                        v-model.number="st.Stock"
+                    />
+                    <button @click="consume(st.ID)">
+                        <Cookie />
+                    </button>
+                </div>
+            </div>
+            <TheScanner v-else @found="handlerConsumeItem" />
+        </ThePopup>
     </div>
 </template>
 
@@ -75,6 +123,9 @@ import { getProductName, prettydelta, rawDelta } from "../utils/helpers";
 import TheButton from "../components/TheButton.vue";
 import InputGroup from "../components/InputGroup.vue";
 import TheLabel from "../components/TheLabel.vue";
+import ThePopup from "../components/ThePopup.vue";
+import TheScanner from "../components/TheScanner.vue";
+import { Cookie } from "lucide-vue-next";
 
 // Implement search
 const search = ref<string>("");
@@ -104,10 +155,10 @@ const visibleItems = computed(() => {
         })
         .sort((a, b) => {
             if (a.ProductName && b.ProductName) {
-                if (a.ProductName < b.ProductName) {
+                if (a.ProductName.toLowerCase() < b.ProductName.toLowerCase()) {
                     return -1;
                 }
-                if (a.ProductName > b.ProductName) {
+                if (a.ProductName.toLowerCase() > b.ProductName.toLowerCase()) {
                     return 1;
                 }
             }
@@ -123,10 +174,29 @@ const getItems = () => {
     api.get("/items/inventory").then((res) => {
         data.value = res.data;
     });
-    console.log(import.meta.env)
+    console.log(import.meta.env);
 };
 
 onMounted(getItems);
+
+// Consume Item
+const openConsumePopup = ref<boolean>(false);
+const consumeItem = ref<ItemDeep | null>(null);
+const handlerConsumeItem = (ean: string): void => {
+    api.get(`/items/${ean}`)
+        .then((res) => {
+            consumeItem.value = res.data;
+        })
+        .catch((err) => {
+            // TODO Error
+        });
+};
+
+const consume = (ItemInventoryID: number) => {
+    api.post(`/items/consume/${ItemInventoryID}`).then((res) => {
+        consumeItem.value = null;
+    });
+};
 
 const meta = ref<{
     [key: string]: Product;
