@@ -1,43 +1,49 @@
 <template>
     <div class="px-4 py-2">
         <div class="flex items-center my-2">
-            <!-- <button
-                class="px-2 py-1 text-blue-800 rounded-sm bg-white border border-blue-800"
-                @click="restart"
-            >
-                Restart scanner
-            </button> -->
             <InputGroup
                 :options="cameraOpts"
                 v-model="selectedDeviceId"
                 name="camera"
                 prettyname="camera"
-                class="w-3/4 !my-0"
+                class="w-full !my-0"
                 :compact="true"
             />
-            <TheButton
+            <button
                 @click="toggleScanner"
                 class="px-2 py-1 w-1/4 bg-white border border-solid border-gray-500 border-l-0 flex justify-center"
             >
                 <XOctagon v-if="!scannerStopped" />
                 <PlayCircle v-else />
-            </TheButton>
-            <TheButton
-                @click="switchTorch"
+            </button>
+            <button
+                v-if="props.enableSwitchTorch"
                 class="px-2 py-1 w-1/4 bg-white border border-solid border-gray-500 border-l-0 flex justify-center"
             >
                 <Flashlight />
-            </TheButton>
+            </button>
         </div>
-        <div></div>
         <section class="container" id="demo-content">
             <div>
-                <video
-                    id="video"
-                    width="600"
-                    height="400"
-                    style="border: 1px solid gray"
-                ></video>
+                <!-- transform:scale(1.5); -->
+                <div class="overflow-hidden w-full rounded-sm shadow-sm" ref="videoWrapperEl">
+                    <video
+                        id="video"
+                        autoplay
+                        playsinline
+                        class="scale-[2] object-cover pointer-events-none'"
+                        ref="videoEl"
+                    ></video>
+                </div>
+                <canvas
+                    id="myCanvas"
+                    width="270"
+                    height="135"
+                    style="border: 1px solid #d3d3d3"
+                    class="w-full hidden"
+                    ref="canvasEl"
+                >
+                </canvas>
             </div>
 
             <div id="sourceSelectPanel" style="display: none">
@@ -49,16 +55,9 @@
 </template>
 
 <script setup lang="ts">
-import {
-    BrowserCodeReader,
-    BrowserMultiFormatReader,
-    BrowserQRCodeReader,
-    IScannerControls,
-} from "@zxing/browser";
-import { Exception, Result } from "@zxing/library";
+import { BrowserMultiFormatReader } from "@zxing/browser";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useMain } from "../store/main";
-import { api } from "../utils/api";
 import InputGroup from "./InputGroup.vue";
 import { XOctagon } from "lucide-vue-next";
 import { Flashlight } from "lucide-vue-next";
@@ -66,8 +65,12 @@ import { PlayCircle } from "lucide-vue-next";
 
 const additions = ref<string[]>([]);
 
-const codeReader = ref<BrowserMultiFormatReader | undefined>(undefined);
-const controls = ref<IScannerControls | undefined>(undefined);
+const videoWrapperEl = ref<HTMLDivElement | null>(null);
+
+// Props
+const props = defineProps<{
+    enableSwitchTorch?: boolean;
+}>();
 
 // Camera options
 const cameras = ref<any[]>([]);
@@ -82,59 +85,151 @@ const selectedDeviceId = ref<string>("");
 // Store
 const main = useMain();
 
-const prepare = async () => {
-    const videoInputDevices = await BrowserCodeReader.listVideoInputDevices();
-    cameras.value = videoInputDevices;
-    selectedDeviceId.value = videoInputDevices[0].deviceId;
+// Declare variables
+const scale = ref<number>(2);
+const setImageInterval = ref<number>(0);
+const stream = ref<MediaStream | null>(null);
+const videoEl = ref<HTMLVideoElement | null>(null);
+const canvasEl = ref<HTMLCanvasElement | null>(null);
+const scannerStopped = ref<boolean>(false);
+
+
+// Video controls
+const stopScanning = () => {
+    if (stream.value) {
+        stream.value.getTracks().forEach((track: MediaStreamTrack) => {
+            track.stop();
+        });
+        if (videoEl.value) {
+            videoEl.value.srcObject = null;
+            clearInterval(setImageInterval.value);
+        }
+    }
+};
+
+const scan = async (deviceId: string) => {
+    stopScanning();
+
+    const constraints: MediaStreamConstraints = {
+        video: {
+            advanced: [
+                {
+                    deviceId: deviceId,
+                },
+            ],
+        },
+    };
+
+    navigator.mediaDevices
+        .getUserMedia(constraints)
+        .then((strm: MediaStream) => {
+            stream.value = strm;
+            if (videoEl.value) {
+                videoEl.value.srcObject = strm;
+                videoEl.value.addEventListener("play", scanBarcode);
+            }
+        })
+        .catch((err) => {
+            console.warn(err);
+        });
+};
+
+const toggleScanner = () => {
+    if (scannerStopped.value) {
+        scan(selectedDeviceId.value);
+    } else if (stream.value) {
+        stopScanning();
+    }
+    scannerStopped.value = !scannerStopped.value;
+};
+
+// Prepare Video Devices
+const getVideoDevices = async () => {
+    await navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((res) => {
+            // allowed
+        })
+        .catch((err) => {
+            // not allowed
+        });
+
+    const devices = (await navigator.mediaDevices.enumerateDevices()).filter(
+        (device) => device.kind === "videoinput"
+    );
+
+    cameras.value = devices;
+    selectedDeviceId.value = devices[0].deviceId;
+
     if (main.getpreferredCamera === "") {
         main.setCamera(selectedDeviceId.value);
     }
 };
 
-const scan = async () => {
-    codeReader.value = new BrowserMultiFormatReader();
-
-    // choose your media device (webcam, frontal camera, back camera, etc.)
-    if (selectedDeviceId.value === "") {
-        selectedDeviceId.value = cameras.value[0].deviceId;
+// Scan barcode from canvas
+const scanBarcode = () => {
+    // handle play callback
+    let canvas: HTMLCanvasElement, video: HTMLVideoElement, videoWrapper: HTMLDivElement;
+    if(canvasEl.value === null || videoEl.value === null || videoWrapperEl.value === null) {
+        console.log('not scanning!')
+        return false
     }
+    canvas = canvasEl.value
+    video = videoEl.value
+    videoWrapper = videoWrapperEl.value
 
-    console.log(`Started decode from camera with id ${selectedDeviceId}`);
+    const v = document.querySelector("video") as HTMLVideoElement;
+    const c = document.querySelector("canvas") as HTMLCanvasElement;
+    const _scale = 1 / scale.value;
+    const ctx: CanvasRenderingContext2D | null = c.getContext("2d");
 
-    const previewElem: HTMLVideoElement | null =
-        document.querySelector("video");
-    console.log(previewElem);
-    if (previewElem !== null) {
-        // you can use the controls to stop() the scan or switchTorch() if available
-        controls.value = await codeReader.value.decodeFromVideoDevice(
-            selectedDeviceId.value,
-            previewElem,
-            (
-                res: Result | undefined,
-                error: Exception | undefined,
-                controls: IScannerControls | undefined
-            ) => {
-                if (res) {
-                    emits("found", res.getText());
-                    if (additions.value.indexOf(res.getText()) < 0) {
-                        additions.value.push(res.getText());
-                    }
-                }
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight / scale.value;
+
+    videoWrapper.style.height = (video.videoHeight - video.videoHeight * _scale) / 2 + 'px';
+
+    const bmfr = new BrowserMultiFormatReader();
+    // set position of orange frame in video
+    setImageInterval.value = setInterval(() => {
+        if (ctx) {
+            ctx.drawImage(
+                v,
+                // source x, y, w, h:
+                (video.videoWidth - video.videoWidth * _scale) / 2,
+                (video.videoHeight - video.videoHeight * _scale) / 2,
+                video.videoWidth * _scale,
+                (video.videoHeight * _scale) / 2,
+                // dest x, y, w, h:
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+            try {
+                const res = bmfr.decodeFromCanvas(c).getText();
+                additions.value.push(res)
+                emits("found", res);
+                stopScanning();
+            } catch (error) {
+                console.log("not found");
             }
-        );
-    }
+        }
+    }, 50);
 };
 
+// Execute on mounted
 onMounted(async () => {
-    await prepare();
+    await getVideoDevices();
     selectedDeviceId.value = main.getpreferredCamera;
-    scan();
+
+    await scan(selectedDeviceId.value);
 });
 
+// Switch device 
 watch(selectedDeviceId, (selectedDeviceId, old) => {
     if (old !== "") {
-        scan();
         main.setCamera(selectedDeviceId);
+        scan(selectedDeviceId);
     }
 });
 
@@ -142,29 +237,10 @@ const emits = defineEmits<{
     (e: "found", value: string): void;
 }>();
 
-const restart = () => {
-    // codeReader.value?.reset();
-    scan();
-};
-
-const scannerStopped = ref<boolean>(false);
-const toggleScanner = () => {
-    if (scannerStopped.value) {
-        scan();
-    } else {
-        controls.value?.stop();
-    }
-    scannerStopped.value = !scannerStopped.value;
-};
-
-const switchTorch = () => {
-    if (controls?.value?.switchTorch) {
-        controls.value.switchTorch(true);
-    }
-};
 
 onUnmounted(() => {
     scannerStopped.value = false;
-    toggleScanner();
+    clearInterval(setImageInterval.value);
+    stopScanning();
 });
 </script>

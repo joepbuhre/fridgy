@@ -11,29 +11,29 @@ datasource db {
 }
 
 model Location {
-    ID            Int              @id @default(autoincrement())
-    Name          String           @unique
+    ID            Int             @id @default(autoincrement())
+    Name          String          @unique
     LocationItems ItemInventory[]
-    HasTht        Boolean          @default(true)
+    HasTht        Boolean         @default(true)
 }
 
 model ItemInventory {
     ID         Int       @id @default(autoincrement())
     EAN        String
     Stock      Int
-    Expiry     DateTime?
-    Location   Location @relation(fields: [LocationID], references: [ID])
+    Expiry     DateTime? @db.Date
+    Location   Location  @relation(fields: [LocationID], references: [ID])
     LocationID Int
-    Item       Item     @relation(fields: [ItemId], references: [ID])
+    Item       Item      @relation(fields: [ItemId], references: [ID])
     ItemId     Int
 }
 
 model Item {
-    ID          Int              @id @default(autoincrement())
-    EAN         String           @unique
+    ID          Int             @id @default(autoincrement())
+    EAN         String          @unique
     Inventory   ItemInventory[]
     ProductName String?
     Merk        String?
-    Reorder     Boolean          @default(false)
-    HasBarcode  Boolean          @default(true)
+    Reorder     Boolean         @default(false)
+    HasBarcode  Boolean         @default(true)
 }

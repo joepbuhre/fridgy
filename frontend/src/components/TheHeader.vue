@@ -20,14 +20,12 @@
                 leave-to-class="rotate-180 opacity-0"
             >
                 <Menu
-                    key="menuicon"
                     class="absolute w-10"
                     aria-hidden="true"
                     v-show="base.iscollapsed"
                 />
                 <X
                     aria-hidden="true"
-                    key="closeicon"
                     class="absolute w-10 text-dark-blue"
                     v-show="!base.iscollapsed"
                 />
@@ -43,14 +41,21 @@
         >
             <nav
                 v-if="!collapsed"
-                class="h-screen w-2/3 bg-slate-200 absolute top-0 bottom-0 right-0 p-10"
+                class="h-screen w-2/3 bg-slate-100 absolute top-0 bottom-0 right-0 p-10"
             >
                 <router-link class="block my-4" to="/items" @click="toggleMenu"
-                    >Items</router-link>
-                <router-link class="block my-4" to="/locations" @click="toggleMenu"
+                    >Items</router-link
+                >
+                <router-link
+                    class="block my-4"
+                    to="/locations"
+                    @click="toggleMenu"
                     >Locations</router-link
                 >
-                <router-link class="block my-4" to="/shopping-list" @click="toggleMenu"
+                <router-link
+                    class="block my-4"
+                    to="/shopping-list"
+                    @click="toggleMenu"
                     >Shopping list</router-link
                 >
             </nav>

@@ -6,108 +6,70 @@
             </router-link>
             <TheButton @click="openConsumePopup = true">Consume Item</TheButton>
         </div>
-        <InputGroup
-            class="my-0"
-            v-model="search"
-            :compact="true"
-            name="Search"
-            prettyname="search"
-        />
-        <router-link
-            v-for="item in visibleItems"
-            :to="{ name: 'Item', params: { EAN: item.EAN } }"
-        >
-            <div
-                class="flex relative my-6 justify-between border border-slate-400 p-1 rounded-sm px-5"
-            >
-                <div class="w-2/3">
-                    <h4 class="font-semibold mb-1">
-                        {{ item.ProductName }}
-                    </h4>
-                    <div class="flex gap-4" v-if="item.Stock > 0">
-                        <span
-                            class="bg-green-100 text-green-500 border border-green-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
-                        >
-                            {{ item.Stock }} op voorraad</span
-                        >
-                        <span
-                            class="bg-blue-100 text-blue-500 border border-blue-500 font-bold text-sm w-auto px-2 py-[1px] rounded-sm"
-                        >
-                            {{
-                                item.Location.map(
-                                    (el) => el.Location?.Name
-                                ).join(", ")
-                            }}
-                        </span>
-                    </div>
-                    <div v-else>
-                        <TheLabel class="text-sm" color="red"
-                            >niet op voorraad</TheLabel
-                        >
+        <TheSearchBar v-model="search" name="Search" prettyname="search" />
+        <div>
+            <router-link v-for="item in visibleItems" :to="{ name: 'Item', params: { EAN: item.EAN } }">
+                <div class="flex relative my-4 justify-between border border-slate-400 p-1 rounded-sm px-5">
+                    <div class="w-full">
+                        <h4 class="font-semibold mb-0">
+                            {{ item.ProductName }}
+                        </h4>
+                        <h5 class="text-xs text-slate-500 mb-2">({{ item.EAN }})</h5>
+                        <div class="text-xs">
+                            <div class="flex gap-4" v-if="item.Stock > 0">
+                                <TheLabel color="green">
+                                    {{ item.Stock }}
+                                </TheLabel>
+                                <TheLabel>
+                                    {{ item.Location.map((el) => el.Location?.Name).join(", ") }}
+                                </TheLabel>
+                                <TheLabel
+                                    v-if="
+                                        !Number.isNaN(rawDelta(item.Expiry)) &&
+                                        item.Location.map((loc) => loc.Location?.HasTht || false).includes(true)
+                                    "
+                                    :color="{
+                                        red: rawDelta(item.Expiry) < 3,
+                                        yellow: rawDelta(item.Expiry) >= 3 && rawDelta(item.Expiry) < 7,
+                                        green: rawDelta(item.Expiry) >= 7 && rawDelta(item.Expiry) < 15,
+                                    }"
+                                >
+                                    {{ prettydelta(item.Expiry) }}
+                                </TheLabel>
+                            </div>
+                            <div v-else>
+                                <TheLabel class="text-sm" color="red">niet op voorraad</TheLabel>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div
-                    class="w-auto text-xs mt-2"
-                    v-if="
-                        !Number.isNaN(rawDelta(item.Expiry)) &&
-                        item.Location.map(
-                            (loc) => loc.Location?.HasTht || false
-                        ).includes(true)
-                    "
-                >
-                    <TheLabel
-                        :color="{
-                            red: rawDelta(item.Expiry) < 3,
-                            yellow:
-                                rawDelta(item.Expiry) >= 3 &&
-                                rawDelta(item.Expiry) < 7,
-                            green:
-                                rawDelta(item.Expiry) >= 7 &&
-                                rawDelta(item.Expiry) < 15,
-                        }"
-                    >
-                        {{ prettydelta(item.Expiry) }}
-                    </TheLabel>
-                </div>
-            </div>
-        </router-link>
-        <ThePopup 
+            </router-link>
+        </div>
+        <ThePopup
             v-if="openConsumePopup"
-            @confirm="openConsumePopup = false; "
-            @cancel="openConsumePopup = false"
-            >
+            @confirm="openConsumePopup = false"
+            @cancel="
+                () => {
+                    openConsumePopup = false;
+                    consumeItem = null;
+                }
+            "
+        >
             <div v-if="consumeItem !== null">
                 <h3>{{ consumeItem?.ProductName }}</h3>
                 <div v-for="st in consumeItem?.Inventory" class="flex gap-3">
-                    <InputGroup
-                        v-if="st.Location"
-                        class="w-2/5"
-                        v-model="st.Location.Name"
-                        name="Location"
-                        prettyname="Location"
-                        :compact="true"
-                    />
-                    <InputGroup
-                        class="w-2/5"
-                        name="Date"
-                        prettyname="Date"
-                        :compact="true"
-                        v-model="st.Expiry"
-                        type="date"
-                    />
-                    <InputGroup
-                        class="w-1/5"
-                        name="Stock"
-                        prettyname="Stock"
-                        :compact="true"
-                        v-model.number="st.Stock"
-                    />
+                    <InputGroup v-if="st.Location" class="w-2/5" v-model="st.Location.Name" name="Location" prettyname="Location" :compact="true" />
+                    <InputGroup class="w-2/5" name="Date" prettyname="Date" :compact="true" v-model="st.Expiry" type="date" />
+                    <InputGroup class="w-1/5" name="Stock" prettyname="Stock" :compact="true" v-model.number="st.Stock" />
                     <button @click="consume(st.ID)">
                         <Cookie />
                     </button>
                 </div>
             </div>
-            <TheScanner v-else @found="handlerConsumeItem" />
+            <div v-else>
+                <TheSearchBar @update:model-value="handlerConsumeItem" v-model="consumeItemEan" name="Search" prettyname="search" />
+                <TheScanner @found="handlerConsumeItem" />
+            </div>
         </ThePopup>
     </div>
 </template>
@@ -126,18 +88,17 @@ import TheLabel from "../components/TheLabel.vue";
 import ThePopup from "../components/ThePopup.vue";
 import TheScanner from "../components/TheScanner.vue";
 import { Cookie } from "lucide-vue-next";
+import TheSearchBar from "../components/TheSearchBar.vue";
 
 // Implement search
 const search = ref<string>("");
 const visibleItems = computed(() => {
     return data.value
         ?.filter((item: ItemDeep) => {
-            return (
-                item.EAN.search(search.value) > -1 ||
-                (item.ProductName || "")
-                    ?.toLowerCase()
-                    .search(search.value.toLowerCase()) > -1
-            );
+            return item.EAN
+                .search(search.value) > -1 || (item.ProductName || "")
+                ?.toLowerCase()
+                .search(search.value.toLowerCase()) > -1;
         })
         .map((it) => {
             return {
@@ -182,6 +143,7 @@ onMounted(getItems);
 // Consume Item
 const openConsumePopup = ref<boolean>(false);
 const consumeItem = ref<ItemDeep | null>(null);
+const consumeItemEan = ref<any>("");
 const handlerConsumeItem = (ean: string): void => {
     api.get(`/items/${ean}`)
         .then((res) => {

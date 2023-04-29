@@ -6,7 +6,7 @@
             v-if="props.compact === false"
             >{{ props.prettyname }}</label
         >
-        <div v-if="props.options" class="select-wrapper">
+        <div v-if="props.options" class="select-wrapper w-full">
             <select
             
             :value="modelValue"
@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { computed, HTMLAttributes, InputHTMLAttributes } from "vue";
 
-const props = defineProps<{
+export interface inputPropType {
     modelValue: any;
     name: string;
     prettyname: string;
@@ -64,7 +64,9 @@ const props = defineProps<{
     inputAttrs?: InputHTMLAttributes;
     compact?: boolean;
     options?: { value: string; name: string }[];
-}>();
+}
+
+const props = defineProps<inputPropType>();
 
 const inputMode = computed(() => {
     if(props.inputmode) {

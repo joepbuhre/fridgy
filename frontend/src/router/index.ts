@@ -32,6 +32,11 @@ const router = createRouter({
             path: "/shopping-list",
             component: () => import("../views/ShoppingList.vue"),
         },
+        {
+            name: "Inventarisation",
+            path: "/inventarisation",
+            component: () => import("../views/InventarisationView.vue")
+        }
     ],
     history: createWebHashHistory(),
 });

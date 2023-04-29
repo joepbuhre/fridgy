@@ -1,20 +1,6 @@
 <template>
     <h4>Voeg toe</h4>
-    <div class="flex items-center">
-        <InputGroup
-            v-model="item.ean"
-            name="ean"
-            prettyname="EAN Code"
-            type="text"
-            :inputmode="keyboardInput"
-            class="w-full"
-            :compact="true"
-        />
-        <button class="border border-gray-500 py-1 px-2 border-l-0" @click="switchKeyboard">
-            <CaseSensitive v-if="keyboardInput === 'tel'" />
-            <Binary v-else />
-        </button>
-    </div>
+    <TheSearchBar v-model="item.ean" />
     <div class="flex gap-4">
         <InputGroup
             class="w-2/5"
@@ -186,22 +172,13 @@ import type { Item, Location } from ".prisma/client";
 import { useRouter } from "vue-router";
 import { CaseSensitive } from 'lucide-vue-next'
 import { Binary } from "lucide-vue-next";
+import TheSearchBar from "../components/TheSearchBar.vue";
 
 const test = ref<string>("");
 
 const result = ref<any>([]);
 const editModal = ref(false);
 const popup = ref(false);
-
-// Set Keyboard input
-const keyboardInput = ref<HTMLAttributes['inputmode']>('tel')
-const switchKeyboard = () => {
-    if(keyboardInput.value === 'tel') {
-        keyboardInput.value = 'text'
-    } else {
-        keyboardInput.value = 'tel'
-    }
-}
 
 // Define router
 const router = useRouter();

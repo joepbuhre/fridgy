@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed inset-0 bg-black bg-opacity-10 flex" @click.self="emits('cancel', false)">
+    <div class="fixed inset-0 bg-black bg-opacity-10 flex z-50" @click.self="emits('cancel', false)">
         <div class="m-auto p-5 w-full mx-5 bg-white shadow-2xl">
             <slot> Ben je er zeker van? </slot>
             <div class="flex gap-5">
