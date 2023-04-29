@@ -1,6 +1,6 @@
 <template>
     <h4>Voeg toe</h4>
-    <TheSearchBar v-model="item.ean" />
+    <TheSearchBar v-model="item.ean" name="Search" prettyname="search" />
     <div class="flex gap-4">
         <InputGroup
             class="w-2/5"
