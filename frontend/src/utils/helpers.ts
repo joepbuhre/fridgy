@@ -44,7 +44,8 @@ export const raw = (variable: any) => {
 
 export const getAuthRedirect = (): string => {
 
-    const base = new URL(import.meta.env.VITE_LOGIN_URL)
+    const base = new URL(window.location.host)
+    base.pathname = '/api/auth/logout'
     base.searchParams.append('rd', window.location.href)
 
     return base.toString()
