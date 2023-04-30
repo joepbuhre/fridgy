@@ -10,15 +10,8 @@
     }
 }
 
-body {
-    /* @apply bg-blue-700 */
-    background-color: white;
-    height: 100%
-}
 
-html{
-    @apply bg-blue-700;
-    height: 100%;
+html {
     /* min-height: calc(100% + env(safe-area-inset-top));*/
     padding-top: env(safe-area-inset-top);
     padding-right: env(safe-area-inset-right) ;
