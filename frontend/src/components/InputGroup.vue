@@ -1,27 +1,18 @@
 <template>
     <div class="my-2" :class="{ 'flex gap-5': props.type === 'checkbox' }">
-        <label
-            :for="props.name"
-            class="block mb-1 font-semibold"
-            v-if="props.compact === false"
-            >{{ props.prettyname }}</label
-        >
+        <label :for="props.name" class="block mb-1 font-semibold" v-if="props.compact === false">{{
+            props.prettyname
+        }}</label>
         <div v-if="props.options" class="select-wrapper w-full">
             <select
-            
-            :value="modelValue"
-            class="border border-solid border-gray-500 rounded-sm outline-none px-2 py-1 w-full"
-            @input="
-                emit(
-                    'update:modelValue',
-                    ($event.target as HTMLInputElement).value
-                )
-            "
-        >
-            <option v-for="opt in props.options" :value="opt.value">
-                {{ opt.name }}
-            </option>
-        </select>
+                :value="modelValue"
+                class="border border-solid border-gray-500 rounded-sm outline-none px-2 py-1 w-full"
+                @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+            >
+                <option v-for="opt in props.options" :value="opt.value">
+                    {{ opt.name }}
+                </option>
+            </select>
         </div>
         <input
             v-else-if="props.type === 'checkbox'"
@@ -41,13 +32,9 @@
             :id="props.name"
             :name="props.name"
             :placeholder="props.compact ? props.prettyname : props.prettyname"
-            @input="
-                emit(
-                    'update:modelValue',
-                    ($event.target as HTMLInputElement).value
-                )
-            "
-            class="border border-solid border-gray-500 rounded-sm outline-none px-2 py-1 w-full"
+            @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+            v-bind="inputAttrs"
+            class="border border-solid border-gray-500 rounded-sm outline-none px-2 py-1 w-full read-only:bg-gray-200 read-only:text-gray-500"
         />
     </div>
 </template>
@@ -60,7 +47,7 @@ export interface inputPropType {
     name: string;
     prettyname: string;
     type?: string;
-    inputmode?: HTMLAttributes['inputmode'],
+    inputmode?: HTMLAttributes["inputmode"];
     inputAttrs?: InputHTMLAttributes;
     compact?: boolean;
     options?: { value: string; name: string }[];
@@ -69,12 +56,12 @@ export interface inputPropType {
 const props = defineProps<inputPropType>();
 
 const inputMode = computed(() => {
-    if(props.inputmode) {
-        return props.inputmode
+    if (props.inputmode) {
+        return props.inputmode;
     } else {
-        return 'text'
+        return "text";
     }
-})
+});
 
 const val = computed(() => {
     if (props.type === "date") {

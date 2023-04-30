@@ -1,6 +1,6 @@
 <template>
     <TheHeader />  
-    <div class="px-4 py-2">
+    <div class="px-4 py-2 bg-white">
         <router-view />
     </div>
 </template>
