@@ -23,6 +23,7 @@ api.interceptors.response.use(
         // Logout if unauthorized
         if( status === 403 || status === 401 ) {
             if (import.meta.env.DEV) {
+                console.log(getAuthRedirect())
                 return Promise.reject(err);
             } else {
                 window.location.href = getAuthRedirect();

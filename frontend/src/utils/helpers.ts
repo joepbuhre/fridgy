@@ -44,9 +44,8 @@ export const raw = (variable: any) => {
 
 export const getAuthRedirect = (): string => {
 
-    const base = new URL(window.location.host)
+    const base = new URL(window.location.origin)
     base.pathname = '/api/auth/logout'
-    base.searchParams.append('rd', window.location.origin)
-
+    base.searchParams.append('redirect', window.location.origin)
     return base.toString()
 }
