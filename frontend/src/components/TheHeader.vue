@@ -1,11 +1,14 @@
 <template>
     <header
         ref="header"
-        class="px-5 flex justify-between items-center pt-3 sticky top-0 z-40 ease-linear duration-300 bg-white"
+        class="px-5 pb-2 flex justify-between items-center sticky top-0 p-2 z-40 w-full ease-linear duration-300 bg-white"
+        :class="{
+            '!bg-blue-700 text-white !p-safe shadow-md': isScroll,
+        }"
     >
-        <router-link to="/"
-            ><h1 class="font-bold text-2xl flex items-center">
-                <Refrigerator /> Fridgy
+        <router-link to="/" 
+            ><h1 class="font-bold text-2xl flex items-center py-2">
+                <Refrigerator /> Fridgy 
             </h1></router-link
         >
 
@@ -41,23 +44,20 @@
         >
             <nav
                 v-if="!collapsed"
-                class="h-screen w-2/3 bg-slate-100 absolute top-0 bottom-0 right-0 p-10"
+                class="h-screen w-2/3 bg-blue-700 text-white absolute top-0 bottom-0 right-0 py-10 px-3"
             >
-                <router-link class="block my-4" to="/items" @click="toggleMenu"
-                    >Items</router-link
-                >
+
                 <router-link
-                    class="block my-4"
-                    to="/locations"
+                    v-for="link in links"
+                    class="block my-4 py-1 bg-slate-50 bg-opacity-10 px-2 rounded-lg"
+                    active-class="!bg-opacity-40"
+                    :to="link.location"
+
                     @click="toggleMenu"
-                    >Locations</router-link
+                    >{{ link.description }}</router-link
                 >
-                <router-link
-                    class="block my-4"
-                    to="/shopping-list"
-                    @click="toggleMenu"
-                    >Shopping list</router-link
-                >
+
+                <!-- <button @click="reload">Reload</button> -->
             </nav>
         </transition>
     </header>
@@ -67,6 +67,13 @@
 import TheOverlay from "./TheOverlay.vue";
 import { Menu, X, Refrigerator } from "lucide-vue-next";
 import { computed, ref } from "vue";
+import { useWindowScroll } from '@vueuse/core'
+
+import {RouteLocationRaw} from 'vue-router'
+
+const {x,y} = useWindowScroll()
+
+const isScroll = computed(() => (y.value > 70))
 
 const base = ref({
     msg: "test",
@@ -107,6 +114,35 @@ const toggleMenu = () => {
     base.value.iscollapsed = !base.value.iscollapsed;
 };
 
+const reload = () => window.location.reload()
+
+const links = ref<{description: string, location: RouteLocationRaw}[]>([
+    {
+        description: "Home",
+        location: {
+            path: '/'
+        }
+    },
+    {
+        description: 'Items',
+        location: {
+            path: '/items'
+        }
+    },
+    {
+        description: 'Locations',
+        location: {
+            path: '/locations'
+        }
+    },
+    {
+        description: 'Shopping List',
+        location: {
+            path: '/shopping-list'
+        }
+    },
+])
+
 const ismobile = computed(() => {
     if (import.meta.env.SSR) {
         return false;
@@ -130,4 +166,6 @@ const collapsed = computed(() => {
         display: block !important;
     }
 }
+
+
 </style>

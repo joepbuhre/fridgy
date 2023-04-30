@@ -1,14 +1,14 @@
 <template>
     <div class="flex items-center">
-        <!-- :value="props.modelValue" -->
         <InputGroup
-            :modelValue="props.modelValue"
+            v-model="props.modelValue"
             name="ean"
             prettyname="EAN Code"
             type="text"
             :inputmode="keyboardInput"
             class="w-full"
             :compact="true"
+            :inputAttrs="props.inputAttrs"
             @update:modelValue="emit('update:modelValue', $event)"
             
         />
@@ -21,14 +21,19 @@
 
 <script setup lang="ts">
 import { CaseSensitive, Binary } from 'lucide-vue-next';
-import { HTMLAttributes, ref } from 'vue';
+import { HTMLAttributes, InputHTMLAttributes, ref } from 'vue';
 import InputGroup from './InputGroup.vue'
 import type { inputPropType as _inputPropType } from './InputGroup.vue';
 
-interface inputPropType extends _inputPropType {}
-
-const tst = (E: any) =>{
-    console.log(E)
+interface inputPropType {
+    modelValue: any;
+    name: string;
+    prettyname: string;
+    type?: string;
+    inputmode?: HTMLAttributes['inputmode'],
+    inputAttrs?: InputHTMLAttributes;
+    compact?: boolean;
+    options?: { value: string; name: string }[];
 }
 
 const keyboardInput = ref<HTMLAttributes['inputmode']>('tel')
