@@ -66,7 +66,7 @@
                     </button>
                 </div>
             </div>
-            <div v-else>
+            <div>
                 <TheSearchBar @update:model-value="handlerConsumeItem" v-model="consumeItemEan" name="Search" prettyname="search" />
                 <TheScanner @found="handlerConsumeItem" />
             </div>
