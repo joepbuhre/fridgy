@@ -1,5 +1,5 @@
 <template>
-    <div class="px-4 py-2">
+    <div>
         <div class="flex items-center my-2">
             <InputGroup
                 :options="cameraOpts"
@@ -23,9 +23,7 @@
                 <Flashlight />
             </button>
         </div>
-        <section class="container" id="demo-content">
-            <div>
-                <!-- transform:scale(1.5); -->
+        <div class="container" id="demo-content">
                 <div class="overflow-hidden w-full rounded-sm shadow-sm" ref="videoWrapperEl">
                     <video
                         id="video"
@@ -44,13 +42,12 @@
                     ref="canvasEl"
                 >
                 </canvas>
-            </div>
 
             <div id="sourceSelectPanel" style="display: none">
                 <label for="sourceSelect">Change video source:</label>
                 <select id="sourceSelect" style="max-width: 400px"></select>
             </div>
-        </section>
+        </div>
     </div>
 </template>
 

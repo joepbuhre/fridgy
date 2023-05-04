@@ -29,3 +29,4 @@ dist
 *-dist
 
 *.db*
+*.env*
