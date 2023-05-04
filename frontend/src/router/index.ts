@@ -1,41 +1,48 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import HomeView from '../views/HomeView.vue'
+import ItemOverviewView from '../views/ItemOverviewView.vue'
+import ItemView from '../views/ItemView.vue'
+import AddItem from '../views/AddItem.vue'
+import Locations from '../views/Locations.vue'
+import ShoppingList from '../views/ShoppingList.vue'
+import InventarisationView from '../views/InventarisationView.vue'
 
 const router = createRouter({
     routes: [
         {
             name: "Home",
             path: "/",
-            component: () => import("../views/HomeView.vue"),
+            component: HomeView,
         },
         {
             name: "Items",
             path: "/items",
-            component: () => import("../views/ItemOverviewView.vue")
+            component: ItemOverviewView
         },
         {
             name: "Item",
             path: "/item/:EAN",
-            component: () => import("../views/ItemView.vue"),
+            component: ItemView,
         },
         {
             name: "Add Item",
             path: "/add",
-            component: () => import("../views/AddItem.vue"),
+            component: AddItem,
         },
         {
             name: "Locations",
             path: "/locations",
-            component: () => import("../views/Locations.vue"),
+            component: Locations,
         },
         {
             name: "Shopping List",
             path: "/shopping-list",
-            component: () => import("../views/ShoppingList.vue"),
+            component: ShoppingList,
         },
         {
             name: "Inventarisation",
             path: "/inventarisation",
-            component: () => import("../views/InventarisationView.vue")
+            component: InventarisationView
         }
     ],
     history: createWebHashHistory(),
