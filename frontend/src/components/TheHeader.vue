@@ -154,18 +154,3 @@ const collapsed = computed(() => {
     return base.value.iscollapsed && ismobile.value;
 });
 </script>
-
-<style>
-/* @media screen and (max-width: 768px) {
-    nav.mobile-hidden {
-        display: none;
-    }
-}
-@media screen and (min-width: 769px) {
-    nav {
-        display: block !important;
-    }
-} */
-
-
-</style>
