@@ -1,13 +1,13 @@
 <template>
     <header
         ref="header"
-        class="px-5 pb-2 flex justify-between items-center sticky top-0 p-2 z-40 w-full ease-linear duration-300 bg-white"
+        class="px-5 pb-2 flex justify-between items-center sticky top-0 p-2 z-40 w-full ease-linear duration-300 bg-white md:w-1/5 "
         :class="{
-            '!bg-blue-700 text-white !p-safe shadow-md': isScroll,
+            '!bg-blue-700 text-white !p-safe shadow-md': isScroll && ismobile,
         }"
     >
         <router-link to="/" 
-            ><h1 class="font-bold text-2xl flex items-center py-2">
+            ><h1 class="font-bold text-2xl flex items-center py-2 z-50 md:fixed md:text-white md:top-0">
                 <Refrigerator /> Fridgy 
             </h1></router-link
         >
@@ -34,7 +34,7 @@
                 />
             </TransitionGroup>
         </button>
-        <TheOverlay @click="toggleMenu" :show="!collapsed" />
+        <TheOverlay @click="toggleMenu" :show="!collapsed && ismobile" />
         <transition
             name="slide-fade"
             enter-active-class="ease duration-200"
@@ -44,7 +44,7 @@
         >
             <nav
                 v-if="!collapsed"
-                class="h-screen w-2/3 bg-blue-700 text-white absolute top-0 bottom-0 right-0 py-10 px-3"
+                class="h-screen w-2/3 bg-blue-700 text-white absolute md:block top-0 bottom-0 right-0 py-10 px-3 md:w-1/6 md:fixed md:left-0"
             >
 
                 <router-link
@@ -151,12 +151,12 @@ const ismobile = computed(() => {
     }
 });
 const collapsed = computed(() => {
-    return base.value.iscollapsed;
+    return base.value.iscollapsed && ismobile.value;
 });
 </script>
 
 <style>
-@media screen and (max-width: 768px) {
+/* @media screen and (max-width: 768px) {
     nav.mobile-hidden {
         display: none;
     }
@@ -165,7 +165,7 @@ const collapsed = computed(() => {
     nav {
         display: block !important;
     }
-}
+} */
 
 
 </style>
