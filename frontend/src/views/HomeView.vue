@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="flex gap-3 pt-4">
+        <div class="flex gap-3 ">
             <router-link :to="{ name: 'Add Item' }">
                 <TheButton>Add item</TheButton>
             </router-link>
