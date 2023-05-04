@@ -1,6 +1,6 @@
 {
-    "name": "Homepage",
-    "short_name": "Homepage",
+    "name": "Fridgy",
+    "short_name": "Fridgy",
     "icons": [
         { "src": "/touch-icon.png", "sizes": "192x192", "type": "image/png" },
         { "src": "/touch-icon.png", "sizes": "512x512", "type": "image/png" }
