@@ -136,6 +136,12 @@ const links = ref<{description: string, location: RouteLocationRaw}[]>([
         }
     },
     {
+        description: 'Inventory Scanner',
+        location: {
+            path: '/inventory-scanner'
+        }
+    },
+    {
         description: 'Shopping List',
         location: {
             path: '/shopping-list'

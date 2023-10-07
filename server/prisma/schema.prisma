@@ -37,3 +37,9 @@ model Item {
     Reorder     Boolean         @default(false)
     HasBarcode  Boolean         @default(true)
 }
+
+model ScannedItem {
+    ID          Int             @id @default(autoincrement())
+    EAN         String
+    ScanId      Int?
+}

@@ -20,12 +20,15 @@
                                 <TheLabel color="green">
                                     {{ item.Stock }}
                                 </TheLabel>
-                                <TheLabel>
+                                <TheLabel 
+                                    v-if="item.Location"
+                                >
                                     {{ item.Location.map((el) => el.Location?.Name).join(", ") }}
                                 </TheLabel>
                                 <TheLabel
                                     v-if="
                                         !Number.isNaN(rawDelta(item.Expiry)) &&
+                                        item.Location &&
                                         item.Location.map((loc) => loc.Location?.HasTht || false).includes(true)
                                     "
                                     :color="{
@@ -103,14 +106,14 @@ const visibleItems = computed(() => {
         .map((it) => {
             return {
                 ...it,
-                Stock: it.Inventory.reduce((a, b) => a + b.Stock, 0),
-                Expiry: new Date(
+                Stock: (it.Inventory ? it.Inventory.reduce((a, b) => a + b.Stock, 0): 0),
+                Expiry: (it.Inventory ? new Date(
                     Math.min.apply(
                         0,
                         // @ts-ignore
                         it.Inventory.filter((el) => el.Expiry !== null).map((el) => new Date(el.Expiry).getTime())
                     )
-                ),
+                ): ""),
                 Location: it.Inventory,
             };
         })
@@ -135,7 +138,6 @@ const getItems = () => {
     api.get("/items/inventory").then((res) => {
         data.value = res.data;
     });
-    console.log(import.meta.env);
 };
 
 onMounted(getItems);

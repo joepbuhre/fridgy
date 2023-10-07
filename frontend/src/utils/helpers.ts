@@ -49,3 +49,11 @@ export const getAuthRedirect = (): string => {
     base.searchParams.append('redirect', window.location.origin)
     return base.toString()
 }
+
+export const debounce = (func: Function, timeout = 300) => {
+    let timer: number;
+    return (...args: any[]) => {
+        clearTimeout(timer);
+        timer = window.setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+}

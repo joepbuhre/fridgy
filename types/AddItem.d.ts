@@ -22,5 +22,5 @@ interface ItemInventoryDeepOld extends ItemInventory  {
 }
 
 interface ItemDeep extends Item {
-    Inventory: ItemInventoryDeep[]
+    Inventory?: ItemInventoryDeep[]
 }

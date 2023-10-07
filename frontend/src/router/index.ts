@@ -5,7 +5,7 @@ import ItemView from '../views/ItemView.vue'
 import AddItem from '../views/AddItem.vue'
 import Locations from '../views/Locations.vue'
 import ShoppingList from '../views/ShoppingList.vue'
-import InventarisationView from '../views/InventarisationView.vue'
+import InventarisationView from '../views/InventoryScanner.vue'
 
 const router = createRouter({
     routes: [
@@ -40,8 +40,8 @@ const router = createRouter({
             component: ShoppingList,
         },
         {
-            name: "Inventarisation",
-            path: "/inventarisation",
+            name: "Inventory Scanner",
+            path: "/inventory-scanner",
             component: InventarisationView
         }
     ],
